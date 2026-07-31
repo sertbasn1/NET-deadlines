@@ -129,6 +129,7 @@ const conferences: Conference[] = [
 ];
 
 const topics = ["Internet", "Systems", "Wireless", "Measurement", "Mobile", "Datacenter", "Emerging"];
+const defaultFeaturedIds = ["infocom-2027", "nsdi-2027-spring", "sigcomm-2027"];
 
 function timeLeft(deadline: string, now: number | null) {
   if (now === null) return { ended: false, text: "Calculating…", days: 0 };
@@ -166,12 +167,29 @@ export default function Home() {
   const [activeTopics, setActiveTopics] = useState<string[]>([]);
   const [ranks, setRanks] = useState<string[]>([]);
   const [showPast, setShowPast] = useState(false);
+  const [featuredIds, setFeaturedIds] = useState<string[]>(defaultFeaturedIds);
+  const [preferencesReady, setPreferencesReady] = useState(false);
 
   useEffect(() => {
     setNow(Date.now());
     const timer = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("netdeadlines-featured");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as string[];
+        setFeaturedIds(parsed.filter((id) => conferences.some((conf) => conf.id === id)).slice(0, 3));
+      } catch { /* Keep the stable defaults when stored data is invalid. */ }
+    }
+    setPreferencesReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (preferencesReady) window.localStorage.setItem("netdeadlines-featured", JSON.stringify(featuredIds));
+  }, [featuredIds, preferencesReady]);
 
   const filtered = useMemo(() => conferences
     .filter((conf) => showPast || !timeLeft(conf.deadline, now).ended)
@@ -190,7 +208,8 @@ export default function Home() {
     setQuery("");
   };
 
-  const featured = filtered.slice(0, 3);
+  const featured = featuredIds.map((id) => conferences.find((conf) => conf.id === id)).filter((conf): conf is Conference => Boolean(conf));
+  const toggleFeatured = (id: string) => setFeaturedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current.slice(-2), id]);
 
   return (
     <main className="desk-shell" id="top">
@@ -212,9 +231,9 @@ export default function Home() {
         </aside>
 
         <section className="desk-content" id="deadlines">
-          <div className="desk-title"><div><span>Deadline operations / active queue</span><h1>Upcoming submissions</h1></div><p>{filtered.length} results · source timezones</p></div>
+          <div className="desk-title"><div><span>Personal deadline watchlist · choose up to 3 below</span><h1>My submission watchlist</h1></div><p>{featured.length}/3 selected · saved on this device</p></div>
 
-          {featured.length > 0 && <div className={`featured-grid count-${featured.length}`}>{featured.map((conf, index) => { const countdown = timeLeft(conf.deadline, now); return <article className={index === 0 ? "featured primary" : "featured"} key={conf.id}><div className="featured-label"><span>{index === 0 ? "Closing next" : index === 1 ? "Next" : "Horizon"}</span><b>{countdown.ended ? "Closed" : "Open"}</b></div><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><strong>{countdown.text}</strong><p>{conf.round ?? "Paper"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</p></article>; })}</div>}
+          {featured.length > 0 ? <div className={`featured-grid count-${featured.length}`}>{featured.map((conf, index) => { const countdown = timeLeft(conf.deadline, now); return <article className={index === 0 ? "featured primary" : "featured"} key={conf.id}><div className="featured-label"><span>Watch slot {index + 1}</span><button onClick={() => toggleFeatured(conf.id)} aria-label={`Remove ${conf.short} from watchlist`}>Remove ×</button></div><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><strong>{countdown.text}</strong><p>{conf.round ?? "Paper"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</p></article>; })}</div> : <div className="watchlist-empty"><strong>Your watchlist is empty.</strong><span>Use “Pin” in the submission timeline to choose conferences.</span></div>}
 
           <div className="timeline-heading"><h2>Submission timeline</h2><div><span><i className="blue-dot" />Paper</span><span><i className="gray-dot" />Past</span></div></div>
           <div className="timeline-list">
@@ -226,7 +245,7 @@ export default function Home() {
                 <div className="timeline-rank">CORE {conf.rank}</div>
                 <div className="deadline-track" aria-label={`${countdown.days} days remaining`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
                 <div className="timeline-count"><strong>{countdown.text}</strong><span>{sourceDateLabel(conf.deadline)} · {conf.timezone}</span></div>
-                <div className="timeline-actions"><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a><a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a></div>
+                <div className="timeline-actions"><button className={featuredIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleFeatured(conf.id)} aria-pressed={featuredIds.includes(conf.id)}>{featuredIds.includes(conf.id) ? "Pinned ✓" : "Pin +"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a><a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a></div>
               </article>;
             })}
             {!filtered.length && <div className="empty-state"><strong>No deadlines found.</strong><span>Reset the filters to restore the full queue.</span></div>}
