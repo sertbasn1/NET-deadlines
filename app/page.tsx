@@ -7,13 +7,13 @@ type Conference = {
   short: string;
   year: number;
   name: string;
-  deadline: string;
+  deadline?: string;
   notification?: string;
   timezone: string;
   dateLabel: string;
   location: string;
   topics: string[];
-  rank: "A*" | "A" | "B";
+  rank: "A*" | "A" | "B" | "C" | "Unranked";
   round?: string;
   note: string;
   url: string;
@@ -21,6 +21,53 @@ type Conference = {
 };
 
 const conferences: Conference[] = [
+  {
+    id: "rtns-2026-round-3", short: "RTNS", year: 2026,
+    name: "International Conference on Real-Time Networks and Systems",
+    deadline: "2026-08-20T23:59:00-12:00", notification: "2026-09-28T23:59:00-12:00", timezone: "AoE",
+    dateLabel: "November 4–6, 2026", location: "Toulouse, France", topics: ["Systems", "Real-Time"], rank: "B", round: "Round 3",
+    note: "Third submission round for RTNS 2026.", url: "https://2026.rtns-conference.org/", dblp: "https://dblp.org/db/conf/rtns/",
+  },
+  {
+    id: "noms-next", short: "NOMS", year: 2028, name: "IEEE Network Operations and Management Symposium",
+    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Management", "Internet"], rank: "B",
+    note: "The next official call for papers has not been announced.", url: "https://noms2026.ieee-noms.org/", dblp: "https://dblp.org/db/conf/noms/",
+  },
+  {
+    id: "netsoft-next", short: "NetSoft", year: 2027, name: "IEEE Conference on Network Softwarization",
+    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Systems", "Management"], rank: "B",
+    note: "The next official call for papers has not been announced.", url: "https://ieee-netsoft.org/", dblp: "https://dblp.org/db/conf/netsoft/",
+  },
+  {
+    id: "icc-next", short: "ICC", year: 2027, name: "IEEE International Conference on Communications",
+    timezone: "TBA", dateLabel: "2027", location: "Washington, D.C., USA", topics: ["Wireless", "Internet"], rank: "B",
+    note: "Waiting for the official IEEE ICC 2027 paper dates.", url: "https://www.ieee-icc.org/", dblp: "https://dblp.org/db/conf/icc/",
+  },
+  {
+    id: "globecom-next", short: "GLOBECOM", year: 2027, name: "IEEE Global Communications Conference",
+    timezone: "TBA", dateLabel: "December 6–10, 2027", location: "Abu Dhabi, UAE", topics: ["Wireless", "Internet"], rank: "B",
+    note: "Waiting for the official IEEE GLOBECOM 2027 paper dates.", url: "https://www.ieee-globecom.org/", dblp: "https://dblp.org/db/conf/globecom/",
+  },
+  {
+    id: "drcn-next", short: "DRCN", year: 2027, name: "International Conference on Design of Reliable Communication Networks",
+    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Reliability", "Internet"], rank: "C",
+    note: "The next official call for papers has not been announced.", url: "https://www.drcn.org/", dblp: "https://dblp.org/db/conf/drcn/",
+  },
+  {
+    id: "lcn-next", short: "LCN", year: 2027, name: "IEEE Conference on Local Computer Networks",
+    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Internet", "Systems"], rank: "B",
+    note: "Waiting for the next official LCN call for papers.", url: "https://www.ieeelcn.org/", dblp: "https://dblp.org/db/conf/lcn/",
+  },
+  {
+    id: "networking-next", short: "IFIP NETWORKING", year: 2027, name: "IFIP Networking Conference",
+    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Internet", "Systems"], rank: "B",
+    note: "The 2026 cycle has closed; waiting for the 2027 call.", url: "https://networking.ifip.org/", dblp: "https://dblp.org/db/conf/networking/",
+  },
+  {
+    id: "european-wireless-next", short: "European Wireless", year: 2027, name: "European Wireless Conference",
+    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Wireless", "Mobile"], rank: "C",
+    note: "The next official call for papers has not been announced.", url: "https://european-wireless.org/", dblp: "https://dblp.org/db/conf/ew/",
+  },
   {
     id: "conext-2026",
     short: "CoNEXT",
@@ -129,10 +176,11 @@ const conferences: Conference[] = [
   },
 ];
 
-const topics = ["Internet", "Systems", "Wireless", "Measurement", "Mobile", "Datacenter", "Emerging"];
+const topics = ["Internet", "Systems", "Wireless", "Measurement", "Mobile", "Datacenter", "Management", "Reliability", "Real-Time", "Emerging"];
 const defaultFeaturedIds = ["infocom-2027", "nsdi-2027-spring", "sigcomm-2027"];
 
-function timeLeft(deadline: string, now: number | null) {
+function timeLeft(deadline: string | undefined, now: number | null) {
+  if (!deadline) return { ended: false, announced: false, text: "Dates TBA", days: 240 };
   if (now === null) return { ended: false, text: "Calculating…", days: 0 };
   const distance = new Date(deadline).getTime() - now;
   if (distance <= 0) return { ended: true, text: "Deadline passed", days: 0 };
@@ -142,7 +190,8 @@ function timeLeft(deadline: string, now: number | null) {
   return { ended: false, text: `${days}d ${hours}h ${minutes}m`, days };
 }
 
-function sourceDateLabel(deadline: string) {
+function sourceDateLabel(deadline: string | undefined) {
+  if (!deadline) return "TBA";
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const match = deadline.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
   if (!match) return deadline;
@@ -151,6 +200,7 @@ function sourceDateLabel(deadline: string) {
 }
 
 function calendarHref(conf: Conference) {
+  if (!conf.deadline) return "";
   const stamp = new Date(conf.deadline).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const details = `Submission deadline for ${conf.name}. Verify details at ${conf.url}`;
   const ics = [
@@ -197,7 +247,7 @@ export default function Home() {
     .filter((conf) => !activeTopics.length || activeTopics.some((topic) => conf.topics.includes(topic)))
     .filter((conf) => !ranks.length || ranks.includes(conf.rank))
     .filter((conf) => `${conf.short} ${conf.name} ${conf.location}`.toLowerCase().includes(query.toLowerCase()))
-    .sort((a, b) => +new Date(a.deadline) - +new Date(b.deadline)),
+    .sort((a, b) => a.deadline && b.deadline ? +new Date(a.deadline) - +new Date(b.deadline) : a.deadline ? -1 : b.deadline ? 1 : a.short.localeCompare(b.short)),
   [showPast, activeTopics, ranks, query, now]);
 
   const toggle = (item: string, list: string[], update: (next: string[]) => void) =>
@@ -225,7 +275,7 @@ export default function Home() {
           <span className="rail-heading">Filter index</span>
           <label className="rail-field"><b>Find conference</b><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, acronym, topic…" /></label>
           <div className="rail-field"><b>Research area</b><div className="rail-chips">{topics.map((topic) => <button className={activeTopics.includes(topic) ? "active" : ""} onClick={() => toggle(topic, activeTopics, setActiveTopics)} key={topic}>{topic}</button>)}</div></div>
-          <div className="rail-field"><b>CORE rank</b><div className="rank-checks">{["A*", "A", "B"].map((rank) => <button className={ranks.includes(rank) ? "active" : ""} onClick={() => toggle(rank, ranks, setRanks)} key={rank}><span className="check-box">✓</span>CORE {rank}<small>{String(conferences.filter((conf) => conf.rank === rank).length).padStart(2, "0")}</small></button>)}</div></div>
+          <div className="rail-field"><b>CORE rank</b><div className="rank-checks">{["A*", "A", "B", "C"].map((rank) => <button className={ranks.includes(rank) ? "active" : ""} onClick={() => toggle(rank, ranks, setRanks)} key={rank}><span className="check-box">✓</span>CORE {rank}<small>{String(conferences.filter((conf) => conf.rank === rank).length).padStart(2, "0")}</small></button>)}</div></div>
           <label className="show-past"><input type="checkbox" checked={showPast} onChange={(event) => setShowPast(event.target.checked)} /><span>Show past deadlines</span></label>
           <button className="reset-button" onClick={clearFilters}>Reset filters</button>
           <div className="rail-note"><b>Deadline signal</b><p>Countdowns use each venue’s listed submission timezone. Always verify the official CFP.</p></div>
@@ -246,14 +296,14 @@ export default function Home() {
                 <div className="timeline-rank">CORE {conf.rank}</div>
                 <div className="deadline-track" aria-label={`${countdown.days} days remaining`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
                 <div className="timeline-count"><strong>{countdown.text}</strong><span>Submit · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>Notification · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
-                <div className="timeline-actions"><button className={featuredIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleFeatured(conf.id)} aria-pressed={featuredIds.includes(conf.id)}>{featuredIds.includes(conf.id) ? "Pinned ✓" : "Pin +"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a><a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a></div>
+                <div className="timeline-actions"><button className={featuredIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleFeatured(conf.id)} aria-pressed={featuredIds.includes(conf.id)}>{featuredIds.includes(conf.id) ? "Pinned ✓" : "Pin +"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a>{conf.deadline && <a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a>}</div>
               </article>;
             })}
             {!filtered.length && <div className="empty-state"><strong>No deadlines found.</strong><span>Reset the filters to restore the full queue.</span></div>}
           </div>
 
           <div className="axis-row"><span>Now</span><span>+60d</span><span>+120d</span><span>+180d</span><span>+240d</span></div>
-          <footer><span>Source registry · {conferences.length} tracked deadlines</span><span>Updated 31 July 2026</span></footer>
+          <footer><span>Source registry · {filtered.length} shown · {conferences.length} tracked conferences</span><span>Updated 31 July 2026</span></footer>
         </section>
       </div>
     </main>
