@@ -8,6 +8,7 @@ type Conference = {
   year: number;
   name: string;
   deadline: string;
+  notification?: string;
   timezone: string;
   dateLabel: string;
   location: string;
@@ -215,7 +216,7 @@ export default function Home() {
     <main className="desk-shell" id="top">
       <header className="desk-header">
         <a className="desk-brand" href="#top" aria-label="NetDeadlines home"><span className="desk-mark"><i /><i /></span>NetDeadlines</a>
-        <nav aria-label="Main navigation"><a className="selected" href="#deadlines">Deadlines</a><a href="#about">About</a></nav>
+        <nav aria-label="Main navigation"><a className="selected" href="#deadlines">Deadlines</a><a href="https://portal.core.edu.au/conf-ranks/" target="_blank" rel="noreferrer">CORE Ranking ↗</a></nav>
         <div className="header-actions"><span>Sync · 31 Jul 2026</span><a href="https://github.com/" target="_blank" rel="noreferrer">+ Contribute</a></div>
       </header>
 
@@ -233,7 +234,7 @@ export default function Home() {
         <section className="desk-content" id="deadlines">
           <div className="desk-title"><div><span>Personal deadline watchlist · choose up to 3 below</span><h1>My submission watchlist</h1></div><p>{featured.length}/3 selected · saved on this device</p></div>
 
-          {featured.length > 0 ? <div className={`featured-grid count-${featured.length}`}>{featured.map((conf, index) => { const countdown = timeLeft(conf.deadline, now); return <article className={index === 0 ? "featured primary" : "featured"} key={conf.id}><div className="featured-label"><span>Watch slot {index + 1}</span><button onClick={() => toggleFeatured(conf.id)} aria-label={`Remove ${conf.short} from watchlist`}>Remove ×</button></div><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><strong>{countdown.text}</strong><p>{conf.round ?? "Paper"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</p></article>; })}</div> : <div className="watchlist-empty"><strong>Your watchlist is empty.</strong><span>Use “Pin” in the submission timeline to choose conferences.</span></div>}
+          {featured.length > 0 ? <div className={`featured-grid count-${featured.length}`}>{featured.map((conf, index) => { const countdown = timeLeft(conf.deadline, now); return <article className={index === 0 ? "featured primary" : "featured"} key={conf.id}><div className="featured-label"><span>Watch slot {index + 1}</span><button onClick={() => toggleFeatured(conf.id)} aria-label={`Remove ${conf.short} from watchlist`}>Remove ×</button></div><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><strong>{countdown.text}</strong><span className="conference-date">Conference · {conf.dateLabel} · {conf.location}</span><div className="card-milestones"><p>Submission deadline <b>{sourceDateLabel(conf.deadline)} · {conf.timezone}</b></p><p>Acceptance notification <b>{conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</b></p></div></article>; })}</div> : <div className="watchlist-empty"><strong>Your watchlist is empty.</strong><span>Use “Pin” in the submission timeline to choose conferences.</span></div>}
 
           <div className="timeline-heading"><h2>Submission timeline</h2><div><span><i className="blue-dot" />Paper</span><span><i className="gray-dot" />Past</span></div></div>
           <div className="timeline-list">
@@ -244,7 +245,7 @@ export default function Home() {
                 <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.location} · {conf.topics.join(" / ")}</span></div>
                 <div className="timeline-rank">CORE {conf.rank}</div>
                 <div className="deadline-track" aria-label={`${countdown.days} days remaining`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
-                <div className="timeline-count"><strong>{countdown.text}</strong><span>{sourceDateLabel(conf.deadline)} · {conf.timezone}</span></div>
+                <div className="timeline-count"><strong>{countdown.text}</strong><span>Submit · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>Notification · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
                 <div className="timeline-actions"><button className={featuredIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleFeatured(conf.id)} aria-pressed={featuredIds.includes(conf.id)}>{featuredIds.includes(conf.id) ? "Pinned ✓" : "Pin +"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a><a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a></div>
               </article>;
             })}
@@ -252,7 +253,6 @@ export default function Home() {
           </div>
 
           <div className="axis-row"><span>Now</span><span>+60d</span><span>+120d</span><span>+180d</span><span>+240d</span></div>
-          <section className="desk-about" id="about"><b>About NetDeadlines</b><p>A focused, community-maintained index of computer networking research deadlines. Dates change—verify the official call for papers before submitting.</p></section>
           <footer><span>Source registry · {conferences.length} tracked deadlines</span><span>Updated 31 July 2026</span></footer>
         </section>
       </div>
