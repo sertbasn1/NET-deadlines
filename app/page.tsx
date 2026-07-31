@@ -184,89 +184,59 @@ export default function Home() {
   const toggle = (item: string, list: string[], update: (next: string[]) => void) =>
     update(list.includes(item) ? list.filter((value) => value !== item) : [...list, item]);
 
-  return (
-    <main>
-      <header className="masthead">
-        <nav className="nav wrap" aria-label="Main navigation">
-          <a className="brand" href="#top" aria-label="NetDeadlines home"><span className="brand-mark">N</span>net<span>deadlines</span></a>
-          <div className="nav-links">
-            <a href="#deadlines">Deadlines</a>
-            <a href="#about">About</a>
-            <a className="contribute" href="https://github.com/" target="_blank" rel="noreferrer">Contribute <span>↗</span></a>
-          </div>
-        </nav>
+  const clearFilters = () => {
+    setActiveTopics([]);
+    setRanks([]);
+    setQuery("");
+  };
 
-        <section className="hero wrap" id="top">
-          <div className="hero-grid">
-            <div>
-              <h1>Never miss<br />the <em>next hop.</em></h1>
-              <p className="lede">Deadlines for the computer networking conferences that move our field forward—collected in one calm, useful place.</p>
-            </div>
-            <aside className="next-up">
-              <span className="label">Next up</span>
-              <strong>{filtered[0]?.short ?? "No match"} <i>{filtered[0]?.year}</i></strong>
-              <span>{filtered[0] ? timeLeft(filtered[0].deadline, now).text : "Adjust your filters"}</span>
-              <div className="signal"><b /><b /><b /><b /><b /></div>
-            </aside>
-          </div>
-          <div className="hero-meta">
-            <span>Updated July 31, 2026</span>
-            <span>All deadlines display their source timezone</span>
-            <span><b>{conferences.length}</b> tracked deadlines</span>
-          </div>
-        </section>
+  const featured = filtered.slice(0, 3);
+
+  return (
+    <main className="desk-shell" id="top">
+      <header className="desk-header">
+        <a className="desk-brand" href="#top" aria-label="NetDeadlines home"><span className="desk-mark"><i /><i /></span>NetDeadlines</a>
+        <nav aria-label="Main navigation"><a className="selected" href="#deadlines">Deadlines</a><a href="#about">About</a></nav>
+        <div className="header-actions"><span>Sync · 31 Jul 2026</span><a href="https://github.com/" target="_blank" rel="noreferrer">+ Contribute</a></div>
       </header>
 
-      <section className="tracker wrap" id="deadlines">
-        <div className="section-heading">
-          <div><span className="kicker">01 / Deadline board</span><h2>What’s coming up</h2></div>
-          <label className="search"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search conferences" aria-label="Search conferences" /></label>
-        </div>
+      <div className="desk-layout">
+        <aside className="filter-rail" aria-label="Deadline filters">
+          <span className="rail-heading">Filter index</span>
+          <label className="rail-field"><b>Find conference</b><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, acronym, topic…" /></label>
+          <div className="rail-field"><b>Research area</b><div className="rail-chips">{topics.map((topic) => <button className={activeTopics.includes(topic) ? "active" : ""} onClick={() => toggle(topic, activeTopics, setActiveTopics)} key={topic}>{topic}</button>)}</div></div>
+          <div className="rail-field"><b>CORE rank</b><div className="rank-checks">{["A*", "A", "B"].map((rank) => <button className={ranks.includes(rank) ? "active" : ""} onClick={() => toggle(rank, ranks, setRanks)} key={rank}><span className="check-box">✓</span>CORE {rank}<small>{String(conferences.filter((conf) => conf.rank === rank).length).padStart(2, "0")}</small></button>)}</div></div>
+          <label className="show-past"><input type="checkbox" checked={showPast} onChange={(event) => setShowPast(event.target.checked)} /><span>Show past deadlines</span></label>
+          <button className="reset-button" onClick={clearFilters}>Reset filters</button>
+          <div className="rail-note"><b>Deadline signal</b><p>Countdowns use each venue’s listed submission timezone. Always verify the official CFP.</p></div>
+        </aside>
 
-        <div className="filter-panel">
-          <div className="filter-group"><span>Research area</span><div>{topics.map((topic) => <button className={activeTopics.includes(topic) ? "active" : ""} onClick={() => toggle(topic, activeTopics, setActiveTopics)} key={topic}>{topic}</button>)}</div></div>
-          <div className="filter-group compact"><span>CORE rank</span><div>{["A*", "A", "B"].map((rank) => <button className={ranks.includes(rank) ? "active" : ""} onClick={() => toggle(rank, ranks, setRanks)} key={rank}>{rank}</button>)}</div></div>
-          <label className="past-toggle"><input type="checkbox" checked={showPast} onChange={(event) => setShowPast(event.target.checked)} /><span /> Show past</label>
-        </div>
+        <section className="desk-content" id="deadlines">
+          <div className="desk-title"><div><span>Deadline operations / active queue</span><h1>Upcoming submissions</h1></div><p>{filtered.length} results · source timezones</p></div>
 
-        <div className="result-row"><span>{filtered.length} deadline{filtered.length === 1 ? "" : "s"}</span>{(activeTopics.length > 0 || ranks.length > 0 || query) && <button onClick={() => { setActiveTopics([]); setRanks([]); setQuery(""); }}>Clear filters ×</button>}</div>
+          {featured.length > 0 && <div className={`featured-grid count-${featured.length}`}>{featured.map((conf, index) => { const countdown = timeLeft(conf.deadline, now); return <article className={index === 0 ? "featured primary" : "featured"} key={conf.id}><div className="featured-label"><span>{index === 0 ? "Closing next" : index === 1 ? "Next" : "Horizon"}</span><b>{countdown.ended ? "Closed" : "Open"}</b></div><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><strong>{countdown.text}</strong><p>{conf.round ?? "Paper"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</p></article>; })}</div>}
 
-        <div className="deadline-list">
-          {filtered.map((conf, index) => {
-            const countdown = timeLeft(conf.deadline, now);
-            return (
-              <article className={`conference-card ${countdown.ended ? "past" : ""}`} key={conf.id}>
-                <div className="card-number">{String(index + 1).padStart(2, "0")}</div>
-                <div className="conference-main">
-                  <div className="tag-row"><span className={`rank rank-${conf.rank.replace("*", "star")}`}>{conf.rank}</span>{conf.topics.map((topic) => <span key={topic}>{topic}</span>)}</div>
-                  <h3><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} <i>{conf.year}</i> <small>↗</small></a></h3>
-                  <p>{conf.name}</p>
-                  <div className="venue"><span>⌖</span> {conf.location}<b>·</b>{conf.dateLabel}</div>
-                  <div className="card-links"><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP ↗</a><a href={calendarHref(conf)} download={`${conf.id}.ics`}>Add to calendar ↓</a></div>
-                </div>
-                <div className="deadline-block">
-                  <span className="label">{countdown.ended ? "Closed" : conf.round ?? "Paper deadline"}</span>
-                  <strong>{countdown.text}</strong>
-                  <time dateTime={conf.deadline}>{sourceDateLabel(conf.deadline)}</time>
-                  <span className="zone">{conf.timezone}</span>
-                  <p>{conf.note}</p>
-                </div>
-              </article>
-            );
-          })}
-          {!filtered.length && <div className="empty"><strong>No deadlines found.</strong><span>Try clearing a filter or showing past deadlines.</span></div>}
-        </div>
-      </section>
+          <div className="timeline-heading"><h2>Submission timeline</h2><div><span><i className="blue-dot" />Paper</span><span><i className="gray-dot" />Past</span></div></div>
+          <div className="timeline-list">
+            {filtered.map((conf) => {
+              const countdown = timeLeft(conf.deadline, now);
+              const position = Math.max(2, Math.min(96, (countdown.days / 240) * 100));
+              return <article className={`timeline-row ${countdown.ended ? "past" : ""}`} key={conf.id}>
+                <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.location} · {conf.topics.join(" / ")}</span></div>
+                <div className="timeline-rank">CORE {conf.rank}</div>
+                <div className="deadline-track" aria-label={`${countdown.days} days remaining`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
+                <div className="timeline-count"><strong>{countdown.text}</strong><span>{sourceDateLabel(conf.deadline)} · {conf.timezone}</span></div>
+                <div className="timeline-actions"><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a><a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a></div>
+              </article>;
+            })}
+            {!filtered.length && <div className="empty-state"><strong>No deadlines found.</strong><span>Reset the filters to restore the full queue.</span></div>}
+          </div>
 
-      <section className="about" id="about">
-        <div className="wrap about-grid">
-          <span className="kicker">02 / About the project</span>
-          <h2>Built for people who think in packets.</h2>
-          <div><p>NetDeadlines is a community-maintained calendar for computer networking research. Dates change; always verify the official call for papers before submitting.</p><a href="https://github.com/" target="_blank" rel="noreferrer">Suggest a conference <span>↗</span></a></div>
-        </div>
-      </section>
-
-      <footer className="wrap"><a className="brand" href="#top"><span className="brand-mark">N</span>net<span>deadlines</span></a><p>Made for the networking community · 2026</p><a href="#top">Back to top ↑</a></footer>
+          <div className="axis-row"><span>Now</span><span>+60d</span><span>+120d</span><span>+180d</span><span>+240d</span></div>
+          <section className="desk-about" id="about"><b>About NetDeadlines</b><p>A focused, community-maintained index of computer networking research deadlines. Dates change—verify the official call for papers before submitting.</p></section>
+          <footer><span>Source registry · {conferences.length} tracked deadlines</span><span>Updated 31 July 2026</span></footer>
+        </section>
+      </div>
     </main>
   );
 }
