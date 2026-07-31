@@ -18,9 +18,7 @@ button, input { font: inherit; }
 .contribute { padding: 13px 19px; border: 1px solid var(--ink); border-radius: 2px; }
 .contribute span { color: var(--coral); margin-left: 8px; }
 .hero { position: relative; z-index: 1; padding: 74px 0 35px; }
-.eyebrow, .kicker { text-transform: uppercase; letter-spacing: 2.2px; font-size: 11px; font-weight: 800; }
-.eyebrow { display: flex; align-items: center; gap: 10px; color: var(--coral); margin-bottom: 28px; }
-.eyebrow span { width: 25px; height: 2px; background: var(--coral); }
+.kicker { text-transform: uppercase; letter-spacing: 2.2px; font-size: 11px; font-weight: 800; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 285px; align-items: end; gap: 70px; }
 h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; margin: 0; }
 h1 { font-size: clamp(62px, 8vw, 106px); line-height: .88; letter-spacing: -6px; font-weight: 500; }

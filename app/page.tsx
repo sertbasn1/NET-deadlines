@@ -130,13 +130,22 @@ const conferences: Conference[] = [
 
 const topics = ["Internet", "Systems", "Wireless", "Measurement", "Mobile", "Datacenter", "Emerging"];
 
-function timeLeft(deadline: string, now: number) {
+function timeLeft(deadline: string, now: number | null) {
+  if (now === null) return { ended: false, text: "Calculating…", days: 0 };
   const distance = new Date(deadline).getTime() - now;
   if (distance <= 0) return { ended: true, text: "Deadline passed", days: 0 };
   const days = Math.floor(distance / 86400000);
   const hours = Math.floor((distance % 86400000) / 3600000);
   const minutes = Math.floor((distance % 3600000) / 60000);
   return { ended: false, text: `${days}d ${hours}h ${minutes}m`, days };
+}
+
+function sourceDateLabel(deadline: string) {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const match = deadline.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (!match) return deadline;
+  const [, year, month, day, hour, minute] = match;
+  return `${months[Number(month) - 1]} ${Number(day)}, ${year}, ${hour}:${minute}`;
 }
 
 function calendarHref(conf: Conference) {
@@ -152,13 +161,14 @@ function calendarHref(conf: Conference) {
 }
 
 export default function Home() {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [activeTopics, setActiveTopics] = useState<string[]>([]);
   const [ranks, setRanks] = useState<string[]>([]);
   const [showPast, setShowPast] = useState(false);
 
   useEffect(() => {
+    setNow(Date.now());
     const timer = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, []);
@@ -187,7 +197,6 @@ export default function Home() {
         </nav>
 
         <section className="hero wrap" id="top">
-          <div className="eyebrow"><span /> The networking research calendar</div>
           <div className="hero-grid">
             <div>
               <h1>Never miss<br />the <em>next hop.</em></h1>
@@ -238,7 +247,7 @@ export default function Home() {
                 <div className="deadline-block">
                   <span className="label">{countdown.ended ? "Closed" : conf.round ?? "Paper deadline"}</span>
                   <strong>{countdown.text}</strong>
-                  <time dateTime={conf.deadline}>{new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(conf.deadline))}</time>
+                  <time dateTime={conf.deadline}>{sourceDateLabel(conf.deadline)}</time>
                   <span className="zone">{conf.timezone}</span>
                   <p>{conf.note}</p>
                 </div>
