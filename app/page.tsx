@@ -9,6 +9,7 @@ type Conference = {
   name: string;
   deadline?: string;
   notification?: string;
+  estimated?: boolean;
   timezone: string;
   dateLabel: string;
   location: string;
@@ -30,43 +31,51 @@ const conferences: Conference[] = [
   },
   {
     id: "noms-next", short: "NOMS", year: 2028, name: "IEEE Network Operations and Management Symposium",
-    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Management", "Internet"], rank: "B",
-    note: "The next official call for papers has not been announced.", url: "https://noms2026.ieee-noms.org/", dblp: "https://dblp.org/db/conf/noms/",
+    deadline: "2027-10-15T23:59:00-12:00", notification: "2028-01-15T23:59:00-12:00", estimated: true,
+    timezone: "AoE", dateLabel: "TBA", location: "TBA", topics: ["Management", "Internet"], rank: "B",
+    note: "Prediction based on the previous NOMS planning window.", url: "https://noms2026.ieee-noms.org/", dblp: "https://dblp.org/db/conf/noms/",
   },
   {
     id: "netsoft-next", short: "NetSoft", year: 2027, name: "IEEE Conference on Network Softwarization",
-    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Systems", "Management"], rank: "B",
-    note: "The next official call for papers has not been announced.", url: "https://ieee-netsoft.org/", dblp: "https://dblp.org/db/conf/netsoft/",
+    deadline: "2027-01-12T23:59:00-12:00", notification: "2027-03-23T23:59:00-12:00", estimated: true,
+    timezone: "AoE", dateLabel: "TBA", location: "TBA", topics: ["Systems", "Management"], rank: "B",
+    note: "Prediction follows the NetSoft 2026 submission and notification dates.", url: "https://ieee-netsoft.org/", dblp: "https://dblp.org/db/conf/netsoft/",
   },
   {
     id: "icc-next", short: "ICC", year: 2027, name: "IEEE International Conference on Communications",
-    timezone: "TBA", dateLabel: "2027", location: "Washington, D.C., USA", topics: ["Wireless", "Internet"], rank: "B",
-    note: "Waiting for the official IEEE ICC 2027 paper dates.", url: "https://www.ieee-icc.org/", dblp: "https://dblp.org/db/conf/icc/",
+    deadline: "2026-09-29T23:59:00-12:00", notification: "2027-01-12T23:59:00-12:00", estimated: true,
+    timezone: "AoE", dateLabel: "2027", location: "Washington, D.C., USA", topics: ["Wireless", "Internet"], rank: "B",
+    note: "Prediction follows the IEEE ICC 2026 paper cycle.", url: "https://www.ieee-icc.org/", dblp: "https://dblp.org/db/conf/icc/",
   },
   {
     id: "globecom-next", short: "GLOBECOM", year: 2027, name: "IEEE Global Communications Conference",
-    timezone: "TBA", dateLabel: "December 6–10, 2027", location: "Abu Dhabi, UAE", topics: ["Wireless", "Internet"], rank: "B",
-    note: "Waiting for the official IEEE GLOBECOM 2027 paper dates.", url: "https://www.ieee-globecom.org/", dblp: "https://dblp.org/db/conf/globecom/",
+    deadline: "2027-04-15T23:59:00-12:00", notification: "2027-07-25T23:59:00-12:00", estimated: true,
+    timezone: "AoE", dateLabel: "December 6–10, 2027", location: "Abu Dhabi, UAE", topics: ["Wireless", "Internet"], rank: "B",
+    note: "Prediction based on the usual GLOBECOM spring submission cycle.", url: "https://www.ieee-globecom.org/", dblp: "https://dblp.org/db/conf/globecom/",
   },
   {
     id: "drcn-next", short: "DRCN", year: 2027, name: "International Conference on Design of Reliable Communication Networks",
-    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Reliability", "Internet"], rank: "C",
-    note: "The next official call for papers has not been announced.", url: "https://www.drcn.org/", dblp: "https://dblp.org/db/conf/drcn/",
+    deadline: "2026-12-15T23:59:00-12:00", notification: "2027-02-15T23:59:00-12:00", estimated: true,
+    timezone: "AoE", dateLabel: "TBA", location: "TBA", topics: ["Reliability", "Internet"], rank: "C",
+    note: "Prediction based on DRCN's recent winter submission window.", url: "https://www.drcn.org/", dblp: "https://dblp.org/db/conf/drcn/",
   },
   {
     id: "lcn-next", short: "LCN", year: 2027, name: "IEEE Conference on Local Computer Networks",
-    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Internet", "Systems"], rank: "B",
-    note: "Waiting for the next official LCN call for papers.", url: "https://www.ieeelcn.org/", dblp: "https://dblp.org/db/conf/lcn/",
+    deadline: "2027-05-04T23:59:00-12:00", notification: "2027-06-29T23:59:00-12:00", estimated: true,
+    timezone: "AoE", dateLabel: "TBA", location: "TBA", topics: ["Internet", "Systems"], rank: "B",
+    note: "Prediction follows the final LCN 2026 paper dates.", url: "https://www.ieeelcn.org/", dblp: "https://dblp.org/db/conf/lcn/",
   },
   {
     id: "networking-next", short: "IFIP NETWORKING", year: 2027, name: "IFIP Networking Conference",
-    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Internet", "Systems"], rank: "B",
-    note: "The 2026 cycle has closed; waiting for the 2027 call.", url: "https://networking.ifip.org/", dblp: "https://dblp.org/db/conf/networking/",
+    deadline: "2027-02-28T23:59:00-12:00", notification: "2027-04-08T23:59:00-12:00", estimated: true,
+    timezone: "AoE", dateLabel: "TBA", location: "TBA", topics: ["Internet", "Systems"], rank: "B",
+    note: "Prediction follows the final IFIP Networking 2026 main-track dates.", url: "https://networking.ifip.org/", dblp: "https://dblp.org/db/conf/networking/",
   },
   {
     id: "european-wireless-next", short: "European Wireless", year: 2027, name: "European Wireless Conference",
-    timezone: "TBA", dateLabel: "TBA", location: "TBA", topics: ["Wireless", "Mobile"], rank: "C",
-    note: "The next official call for papers has not been announced.", url: "https://european-wireless.org/", dblp: "https://dblp.org/db/conf/ew/",
+    deadline: "2027-04-15T23:59:00-12:00", notification: "2027-05-15T23:59:00-12:00", estimated: true,
+    timezone: "AoE", dateLabel: "TBA", location: "TBA", topics: ["Wireless", "Mobile"], rank: "C",
+    note: "Prediction follows the European Wireless 2026 paper dates.", url: "https://european-wireless.org/", dblp: "https://dblp.org/db/conf/ew/",
   },
   {
     id: "conext-2026",
@@ -284,7 +293,7 @@ export default function Home() {
         <section className="desk-content" id="deadlines">
           <div className="desk-title"><div><span>Personal deadline watchlist · choose up to 3 below</span><h1>My submission watchlist</h1></div><p>{featured.length}/3 selected · saved on this device</p></div>
 
-          {featured.length > 0 ? <div className={`featured-grid count-${featured.length}`}>{featured.map((conf, index) => { const countdown = timeLeft(conf.deadline, now); return <article className={index === 0 ? "featured primary" : "featured"} key={conf.id}><div className="featured-label"><span>Watch slot {index + 1}</span><button onClick={() => toggleFeatured(conf.id)} aria-label={`Remove ${conf.short} from watchlist`}>Remove ×</button></div><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><strong>{countdown.text}</strong><span className="conference-date">Conference · {conf.dateLabel} · {conf.location}</span><div className="card-milestones"><p>Submission deadline <b>{sourceDateLabel(conf.deadline)} · {conf.timezone}</b></p><p>Acceptance notification <b>{conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</b></p></div></article>; })}</div> : <div className="watchlist-empty"><strong>Your watchlist is empty.</strong><span>Use “Pin” in the submission timeline to choose conferences.</span></div>}
+          {featured.length > 0 ? <div className={`featured-grid count-${featured.length}`}>{featured.map((conf, index) => { const countdown = timeLeft(conf.deadline, now); return <article className={index === 0 ? "featured primary" : "featured"} key={conf.id}><div className="featured-label"><span>Watch slot {index + 1}{conf.estimated ? " · Estimated" : ""}</span><button onClick={() => toggleFeatured(conf.id)} aria-label={`Remove ${conf.short} from watchlist`}>Remove ×</button></div><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><strong>{countdown.text}</strong><span className="conference-date">Conference · {conf.dateLabel} · {conf.location}</span><div className="card-milestones"><p>{conf.estimated ? "Estimated submission" : "Submission deadline"} <b>{sourceDateLabel(conf.deadline)} · {conf.timezone}</b></p><p>{conf.estimated ? "Estimated notification" : "Acceptance notification"} <b>{conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</b></p></div></article>; })}</div> : <div className="watchlist-empty"><strong>Your watchlist is empty.</strong><span>Use “Pin” in the submission timeline to choose conferences.</span></div>}
 
           <div className="timeline-heading"><h2>Submission timeline</h2><div><span><i className="blue-dot" />Paper</span><span><i className="gray-dot" />Past</span></div></div>
           <div className="timeline-list">
@@ -295,8 +304,8 @@ export default function Home() {
                 <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.location} · {conf.topics.join(" / ")}</span></div>
                 <div className="timeline-rank">CORE {conf.rank}</div>
                 <div className="deadline-track" aria-label={`${countdown.days} days remaining`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
-                <div className="timeline-count"><strong>{countdown.text}</strong><span>Submit · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>Notification · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
-                <div className="timeline-actions"><button className={featuredIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleFeatured(conf.id)} aria-pressed={featuredIds.includes(conf.id)}>{featuredIds.includes(conf.id) ? "Pinned ✓" : "Pin +"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a>{conf.deadline && <a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a>}</div>
+                <div className="timeline-count"><strong>{countdown.text}{conf.estimated ? " · EST." : ""}</strong><span>{conf.estimated ? "Estimated submit" : "Submit"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>{conf.estimated ? "Estimated notification" : "Notification"} · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
+                <div className="timeline-actions"><button className={featuredIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleFeatured(conf.id)} aria-pressed={featuredIds.includes(conf.id)}>{featuredIds.includes(conf.id) ? "Pinned ✓" : "Pin +"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a>{conf.deadline && !conf.estimated && <a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a>}</div>
               </article>;
             })}
             {!filtered.length && <div className="empty-state"><strong>No deadlines found.</strong><span>Reset the filters to restore the full queue.</span></div>}
