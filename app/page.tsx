@@ -21,7 +21,7 @@ type Conference = {
   dblp: string;
 };
 
-const conferences: Conference[] = [
+const selectedConferences: Conference[] = [
   {
     id: "rtns-2026-round-3", short: "RTNS", year: 2026,
     name: "International Conference on Real-Time Networks and Systems",
@@ -184,6 +184,42 @@ const conferences: Conference[] = [
     dblp: "https://dblp.org/db/conf/hotnets/",
   },
 ];
+
+type RankedVenueSeed = [string, string, string, "A*" | "A" | "B", string, string, string[]];
+
+const rankedNetworkingVenueSeeds: RankedVenueSeed[] = [
+  ["percom", "PerCom", "IEEE International Conference on Pervasive Computing and Communications", "A*", "https://www.percom.org/", "percom", ["Mobile", "Systems"]],
+  ["dsn", "DSN", "IEEE/IFIP International Conference on Dependable Systems and Networks", "A", "https://dsn.org/", "dsn", ["Reliability", "Systems"]],
+  ["mobisys", "MobiSys", "ACM International Conference on Mobile Systems, Applications, and Services", "A", "https://www.sigmobile.org/mobisys/", "mobisys", ["Mobile", "Systems"]],
+  ["mswim", "MSWiM", "ACM International Conference on Modeling, Analysis and Simulation of Wireless and Mobile Systems", "A", "https://mswimconf.com/", "mswim", ["Wireless", "Mobile"]],
+  ["cnsm", "CNSM", "International Conference on Network and Service Management", "B", "https://www.cnsm-conf.org/", "cnsm", ["Management", "Internet"]],
+  ["dcoss", "DCOSS", "IEEE International Conference on Distributed Computing in Smart Systems and the Internet of Things", "B", "https://dcoss.org/", "dcoss", ["Wireless", "Systems"]],
+  ["ewsn", "EWSN", "International Conference on Embedded Wireless Systems and Networks", "B", "https://ewsn.org/", "ewsn", ["Wireless", "Systems"]],
+  ["icccn", "ICCCN", "International Conference on Computer Communications and Networks", "B", "https://www.icccn.org/", "icccn", ["Internet", "Systems"]],
+  ["icnp", "ICNP", "IEEE International Conference on Network Protocols", "B", "https://icnp.network/", "icnp", ["Internet", "Systems"]],
+  ["ccnc", "CCNC", "IEEE Consumer Communications and Networking Conference", "B", "https://ccnc2027.ieee-ccnc.org/", "ccnc", ["Wireless", "Internet"]],
+  ["im", "IM", "IFIP/IEEE International Symposium on Integrated Network Management", "B", "https://im2027.ieee-im.org/", "im", ["Management", "Internet"]],
+  ["iwcmc", "IWCMC", "International Wireless Communications and Mobile Computing Conference", "B", "https://iwcmc.org/", "iwcmc", ["Wireless", "Mobile"]],
+  ["iwqos", "IWQoS", "IEEE/ACM International Symposium on Quality of Service", "B", "https://iwqos.org/", "iwqos", ["Internet", "Systems"]],
+  ["mass", "MASS", "IEEE International Conference on Mobile Ad Hoc and Smart Systems", "B", "https://sites.google.com/view/ieee-mass/", "mass", ["Wireless", "Mobile"]],
+  ["mobihoc", "MobiHoc", "ACM International Symposium on Theory, Algorithmic Foundations, and Protocol Design for Mobile Networks", "B", "https://www.sigmobile.org/mobihoc/", "mobihoc", ["Wireless", "Mobile"]],
+  ["pam", "PAM", "Passive and Active Measurement Conference", "B", "https://www.pamconference.org/", "pam", ["Measurement", "Internet"]],
+  ["pimrc", "PIMRC", "IEEE International Symposium on Personal, Indoor and Mobile Radio Communications", "B", "https://pimrc2027.ieee-pimrc.org/", "pimrc", ["Wireless", "Mobile"]],
+  ["secon", "SECON", "IEEE International Conference on Sensing, Communication, and Networking", "B", "https://secon2026.ieee-secon.org/", "secon", ["Wireless", "Mobile"]],
+  ["vtc", "VTC", "IEEE Vehicular Technology Conference", "B", "https://events.vtsociety.org/vtc2027-spring/", "vtc", ["Wireless", "Mobile"]],
+  ["wcnc", "WCNC", "IEEE Wireless Communications and Networking Conference", "B", "https://wcnc2027.ieee-wcnc.org/", "wcnc", ["Wireless", "Internet"]],
+  ["wimob", "WiMob", "IEEE International Conference on Wireless and Mobile Computing, Networking and Communications", "B", "https://wimob.org/", "wimob", ["Wireless", "Mobile"]],
+  ["wiopt", "WiOpt", "International Symposium on Modeling and Optimization in Mobile, Ad Hoc, and Wireless Networks", "B", "https://wiopt.org/", "wiopt", ["Wireless", "Mobile"]],
+];
+
+const rankedNetworkingVenues: Conference[] = rankedNetworkingVenueSeeds.map(([id, short, name, rank, url, dblp, venueTopics]) => ({
+  id: `${id}-next`, short, year: 2027, name, rank, url,
+  dblp: `https://dblp.org/db/conf/${dblp}/`, topics: venueTopics,
+  timezone: "TBA", dateLabel: "TBA", location: "TBA",
+  note: "Tracked from the ICORE 2026 A*/A/B networking list; next official dates are TBA.",
+}));
+
+const conferences = [...selectedConferences, ...rankedNetworkingVenues];
 
 const topics = ["Internet", "Systems", "Wireless", "Measurement", "Mobile", "Datacenter", "Management", "Reliability", "Real-Time", "Emerging"];
 type View = "deadlines" | "watchlist";
