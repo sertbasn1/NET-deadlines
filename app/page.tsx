@@ -186,7 +186,7 @@ const conferences: Conference[] = [
 ];
 
 const topics = ["Internet", "Systems", "Wireless", "Measurement", "Mobile", "Datacenter", "Management", "Reliability", "Real-Time", "Emerging"];
-const defaultFeaturedIds = ["infocom-2027", "nsdi-2027-spring", "sigcomm-2027"];
+type View = "deadlines" | "watchlist";
 
 function timeLeft(deadline: string | undefined, now: number | null) {
   if (!deadline) return { ended: false, announced: false, text: "Dates TBA", days: 240 };
@@ -222,12 +222,15 @@ function calendarHref(conf: Conference) {
 }
 
 export default function Home() {
+  const [view, setView] = useState<View>("deadlines");
   const [now, setNow] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [activeTopics, setActiveTopics] = useState<string[]>([]);
   const [ranks, setRanks] = useState<string[]>([]);
-  const [showPast, setShowPast] = useState(false);
-  const [featuredIds, setFeaturedIds] = useState<string[]>(defaultFeaturedIds);
+  const [showPast, setShowPast] = useState(true);
+  const [watchlistIds, setWatchlistIds] = useState<string[]>([]);
+  const [customTags, setCustomTags] = useState<Record<string, string[]>>({});
+  const [tagDrafts, setTagDrafts] = useState<Record<string, string>>({});
   const [preferencesReady, setPreferencesReady] = useState(false);
 
   useEffect(() => {
@@ -237,27 +240,34 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("netdeadlines-featured");
+    const saved = window.localStorage.getItem("netdeadlines-watchlist") ?? window.localStorage.getItem("netdeadlines-featured");
     if (saved) {
       try {
         const parsed = JSON.parse(saved) as string[];
-        setFeaturedIds(parsed.filter((id) => conferences.some((conf) => conf.id === id)).slice(0, 3));
-      } catch { /* Keep the stable defaults when stored data is invalid. */ }
+        setWatchlistIds(parsed.filter((id) => conferences.some((conf) => conf.id === id)));
+      } catch { /* Keep an empty watchlist when stored data is invalid. */ }
     }
+    const savedTags = window.localStorage.getItem("netdeadlines-tags");
+    if (savedTags) try { setCustomTags(JSON.parse(savedTags) as Record<string, string[]>); } catch { /* Ignore invalid saved tags. */ }
     setPreferencesReady(true);
   }, []);
 
   useEffect(() => {
-    if (preferencesReady) window.localStorage.setItem("netdeadlines-featured", JSON.stringify(featuredIds));
-  }, [featuredIds, preferencesReady]);
+    if (preferencesReady) window.localStorage.setItem("netdeadlines-watchlist", JSON.stringify(watchlistIds));
+  }, [watchlistIds, preferencesReady]);
+
+  useEffect(() => {
+    if (preferencesReady) window.localStorage.setItem("netdeadlines-tags", JSON.stringify(customTags));
+  }, [customTags, preferencesReady]);
 
   const filtered = useMemo(() => conferences
     .filter((conf) => showPast || !timeLeft(conf.deadline, now).ended)
     .filter((conf) => !activeTopics.length || activeTopics.some((topic) => conf.topics.includes(topic)))
     .filter((conf) => !ranks.length || ranks.includes(conf.rank))
-    .filter((conf) => `${conf.short} ${conf.name} ${conf.location}`.toLowerCase().includes(query.toLowerCase()))
+    .filter((conf) => view === "deadlines" || watchlistIds.includes(conf.id))
+    .filter((conf) => `${conf.short} ${conf.name} ${conf.location} ${conf.topics.join(" ")} ${(customTags[conf.id] ?? []).join(" ")}`.toLowerCase().includes(query.toLowerCase()))
     .sort((a, b) => a.deadline && b.deadline ? +new Date(a.deadline) - +new Date(b.deadline) : a.deadline ? -1 : b.deadline ? 1 : a.short.localeCompare(b.short)),
-  [showPast, activeTopics, ranks, query, now]);
+  [showPast, activeTopics, ranks, query, now, view, watchlistIds, customTags]);
 
   const toggle = (item: string, list: string[], update: (next: string[]) => void) =>
     update(list.includes(item) ? list.filter((value) => value !== item) : [...list, item]);
@@ -268,14 +278,20 @@ export default function Home() {
     setQuery("");
   };
 
-  const featured = featuredIds.map((id) => conferences.find((conf) => conf.id === id)).filter((conf): conf is Conference => Boolean(conf));
-  const toggleFeatured = (id: string) => setFeaturedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current.slice(-2), id]);
+  const toggleWatchlist = (id: string) => setWatchlistIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  const addTag = (id: string) => {
+    const tag = (tagDrafts[id] ?? "").trim().replace(/^#/, "");
+    if (!tag) return;
+    setCustomTags((current) => ({ ...current, [id]: Array.from(new Set([...(current[id] ?? []), tag])) }));
+    setTagDrafts((current) => ({ ...current, [id]: "" }));
+  };
+  const removeTag = (id: string, tag: string) => setCustomTags((current) => ({ ...current, [id]: (current[id] ?? []).filter((item) => item !== tag) }));
 
   return (
     <main className="desk-shell" id="top">
       <header className="desk-header">
         <a className="desk-brand" href="#top" aria-label="NetDeadlines home"><span className="desk-mark"><i /><i /></span>NetDeadlines</a>
-        <nav aria-label="Main navigation"><a className="selected" href="#deadlines">Deadlines</a><a href="https://portal.core.edu.au/conf-ranks/" target="_blank" rel="noreferrer">CORE Ranking ↗</a></nav>
+        <nav aria-label="Main navigation"><button className={view === "deadlines" ? "selected" : ""} onClick={() => setView("deadlines")}>All deadlines</button><button className={view === "watchlist" ? "selected" : ""} onClick={() => setView("watchlist")}>My watchlist <small>{watchlistIds.length}</small></button><a href="https://portal.core.edu.au/conf-ranks/" target="_blank" rel="noreferrer">CORE Ranking ↗</a></nav>
         <div className="header-actions"><span>Sync · 31 Jul 2026</span><a href="https://github.com/" target="_blank" rel="noreferrer">+ Contribute</a></div>
       </header>
 
@@ -287,32 +303,30 @@ export default function Home() {
           <div className="rail-field"><b>CORE rank</b><div className="rank-checks">{["A*", "A", "B", "C"].map((rank) => <button className={ranks.includes(rank) ? "active" : ""} onClick={() => toggle(rank, ranks, setRanks)} key={rank}><span className="check-box">✓</span>CORE {rank}<small>{String(conferences.filter((conf) => conf.rank === rank).length).padStart(2, "0")}</small></button>)}</div></div>
           <label className="show-past"><input type="checkbox" checked={showPast} onChange={(event) => setShowPast(event.target.checked)} /><span>Show past deadlines</span></label>
           <button className="reset-button" onClick={clearFilters}>Reset filters</button>
-          <div className="rail-note"><b>Deadline signal</b><p>Countdowns use each venue’s listed submission timezone. Always verify the official CFP.</p></div>
+          <div className="rail-note"><b>{view === "watchlist" ? "Your labels" : "Deadline signal"}</b><p>{view === "watchlist" ? "Add project names or tags to organize the conferences you follow. They stay on this device." : "Countdowns use each venue’s listed submission timezone. Always verify the official CFP."}</p></div>
         </aside>
 
         <section className="desk-content" id="deadlines">
-          <div className="desk-title"><div><span>Personal deadline watchlist · choose up to 3 below</span><h1>My submission watchlist</h1></div><p>{featured.length}/3 selected · saved on this device</p></div>
+          <div className="desk-title"><div><span>{view === "deadlines" ? "Complete conference registry" : "Personal conference collection"}</span><h1>{view === "deadlines" ? "All networking deadlines" : "My watchlist"}</h1></div><p>{view === "deadlines" ? `${conferences.length} tracked conferences` : `${watchlistIds.length} saved · this device`}</p></div>
 
-          {featured.length > 0 ? <div className={`featured-grid count-${featured.length}`}>{featured.map((conf, index) => { const countdown = timeLeft(conf.deadline, now); return <article className={index === 0 ? "featured primary" : "featured"} key={conf.id}><div className="featured-label"><span>Watch slot {index + 1}{conf.estimated ? " · Estimated" : ""}</span><button onClick={() => toggleFeatured(conf.id)} aria-label={`Remove ${conf.short} from watchlist`}>Remove ×</button></div><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><strong>{countdown.text}</strong><span className="conference-date">Conference · {conf.dateLabel} · {conf.location}</span><div className="card-milestones"><p>{conf.estimated ? "Estimated submission" : "Submission deadline"} <b>{sourceDateLabel(conf.deadline)} · {conf.timezone}</b></p><p>{conf.estimated ? "Estimated notification" : "Acceptance notification"} <b>{conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</b></p></div></article>; })}</div> : <div className="watchlist-empty"><strong>Your watchlist is empty.</strong><span>Use “Pin” in the submission timeline to choose conferences.</span></div>}
-
-          <div className="timeline-heading"><h2>Submission timeline</h2><div><span><i className="blue-dot" />Paper</span><span><i className="gray-dot" />Past</span></div></div>
+          <div className="timeline-heading"><h2>{view === "deadlines" ? "Submission timeline" : "Saved conferences"}</h2><div><span><i className="blue-dot" />Paper</span><span><i className="gray-dot" />Past</span></div></div>
           <div className="timeline-list">
             {filtered.map((conf) => {
               const countdown = timeLeft(conf.deadline, now);
               const position = Math.max(2, Math.min(96, (countdown.days / 240) * 100));
               return <article className={`timeline-row ${countdown.ended ? "past" : ""}`} key={conf.id}>
-                <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.location} · {conf.topics.join(" / ")}</span></div>
+                <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.location} · {conf.topics.join(" / ")}</span>{view === "watchlist" && <div className="custom-tags">{(customTags[conf.id] ?? []).map((tag) => <button key={tag} onClick={() => removeTag(conf.id, tag)} title={`Remove ${tag}`}>#{tag} ×</button>)}<form onSubmit={(event) => { event.preventDefault(); addTag(conf.id); }}><input aria-label={`Add label to ${conf.short}`} placeholder="Add label…" value={tagDrafts[conf.id] ?? ""} onChange={(event) => setTagDrafts((current) => ({ ...current, [conf.id]: event.target.value }))} /><button type="submit">+</button></form></div>}</div>
                 <div className="timeline-rank">CORE {conf.rank}</div>
                 <div className="deadline-track" aria-label={`${countdown.days} days remaining`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
                 <div className="timeline-count"><strong>{countdown.text}{conf.estimated ? " · EST." : ""}</strong><span>{conf.estimated ? "Estimated submit" : "Submit"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>{conf.estimated ? "Estimated notification" : "Notification"} · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
-                <div className="timeline-actions"><button className={featuredIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleFeatured(conf.id)} aria-pressed={featuredIds.includes(conf.id)}>{featuredIds.includes(conf.id) ? "Pinned ✓" : "Pin +"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a>{conf.deadline && !conf.estimated && <a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a>}</div>
+                <div className="timeline-actions"><button className={watchlistIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleWatchlist(conf.id)} aria-pressed={watchlistIds.includes(conf.id)}>{watchlistIds.includes(conf.id) ? (view === "watchlist" ? "Remove ×" : "Saved ✓") : "+ Watch"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a>{conf.deadline && !conf.estimated && <a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a>}</div>
               </article>;
             })}
-            {!filtered.length && <div className="empty-state"><strong>No deadlines found.</strong><span>Reset the filters to restore the full queue.</span></div>}
+            {!filtered.length && <div className="empty-state"><strong>{view === "watchlist" && !watchlistIds.length ? "Your watchlist is empty." : "No deadlines found."}</strong><span>{view === "watchlist" && !watchlistIds.length ? "Open All deadlines and select + Watch to add conferences." : "Reset the filters to restore the full queue."}</span>{view === "watchlist" && !watchlistIds.length && <button className="empty-action" onClick={() => setView("deadlines")}>Browse all deadlines</button>}</div>}
           </div>
 
           <div className="axis-row"><span>Now</span><span>+60d</span><span>+120d</span><span>+180d</span><span>+240d</span></div>
-          <footer><span>Source registry · {filtered.length} shown · {conferences.length} tracked conferences</span><span>Updated 31 July 2026</span></footer>
+          <footer><span>{view === "deadlines" ? `Source registry · ${filtered.length} shown · ${conferences.length} tracked conferences` : `Personal watchlist · ${filtered.length} shown · ${watchlistIds.length} saved`}</span><span>Updated 15 September 2026</span></footer>
         </section>
       </div>
     </main>
