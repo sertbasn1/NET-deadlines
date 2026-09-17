@@ -285,6 +285,20 @@ function sourceDateLabel(deadline: string | undefined) {
   return `${months[Number(month) - 1]} ${Number(day)}, ${year}, ${hour}:${minute}`;
 }
 
+const labelPalette = [
+  { backgroundColor: "#e6efff", borderColor: "#9bbcff", color: "#0648c7" },
+  { backgroundColor: "#e3f5ee", borderColor: "#91d5bd", color: "#076247" },
+  { backgroundColor: "#fff1d8", borderColor: "#edc27d", color: "#8a4c00" },
+  { backgroundColor: "#f2e9ff", borderColor: "#c7a8eb", color: "#6636a5" },
+  { backgroundColor: "#ffe8eb", borderColor: "#edabb5", color: "#9c2f40" },
+  { backgroundColor: "#e7f4f7", borderColor: "#a2d4dd", color: "#176574" },
+];
+
+function labelStyle(label: string) {
+  const hash = Array.from(label.toLocaleLowerCase()).reduce((value, character) => ((value * 31) + character.charCodeAt(0)) >>> 0, 0);
+  return labelPalette[hash % labelPalette.length];
+}
+
 function calendarHref(conf: Conference) {
   if (!conf.deadline) return "";
   const stamp = new Date(conf.deadline).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
@@ -391,7 +405,7 @@ export default function Home() {
           <div className="rail-field"><b>CORE rank</b><div className="rank-checks">{["A*", "A", "B", "C"].map((rank) => <button className={ranks.includes(rank) ? "active" : ""} onClick={() => toggle(rank, ranks, setRanks)} key={rank}><span className="check-box">✓</span>CORE {rank}<small>{String(conferences.filter((conf) => conf.rank === rank).length).padStart(2, "0")}</small></button>)}</div></div>
           <label className="show-past"><input type="checkbox" checked={showPast} onChange={(event) => setShowPast(event.target.checked)} /><span>Show past deadlines</span></label>
           <button className="reset-button" onClick={clearFilters}>Reset filters</button>
-          <div className="rail-note"><b>{view === "watchlist" ? "Your labels" : view === "decisions" ? "Decision tracker" : "Deadline signal"}</b><p>{view === "watchlist" ? "Add project names or tags to organize the conferences you follow. They stay on this device." : view === "decisions" ? "This view counts down to each acceptance-notification date and stays on this device." : "Countdowns use each venue’s listed submission timezone. Always verify the official CFP."}</p></div>
+          <div className="rail-note"><b>{view === "watchlist" ? "Your labels" : view === "decisions" ? "Student assignments" : "Deadline signal"}</b><p>{view === "watchlist" ? "Add project names or tags to organize the conferences you follow. They stay on this device." : view === "decisions" ? "Add a student name or label to each submission. The same label always keeps the same color on this device." : "Countdowns use each venue’s listed submission timezone. Always verify the official CFP."}</p></div>
         </aside>
 
         <section className="desk-content" id="deadlines">
@@ -403,7 +417,7 @@ export default function Home() {
               const countdown = timeLeft(view === "decisions" ? conf.notification : conf.deadline, now);
               const position = Math.max(2, Math.min(96, (countdown.days / 240) * 100));
               return <article className={`timeline-row ${countdown.ended ? "past" : ""}`} key={conf.id}>
-                <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.round ? `${conf.round} · ` : ""}{conf.location} · {conf.topics.join(" / ")}</span>{view === "watchlist" && <div className="custom-tags">{(customTags[conf.id] ?? []).map((tag) => <button key={tag} onClick={() => removeTag(conf.id, tag)} title={`Remove ${tag}`}>#{tag} ×</button>)}<form onSubmit={(event) => { event.preventDefault(); addTag(conf.id); }}><input aria-label={`Add label to ${conf.short}`} placeholder="Add label…" value={tagDrafts[conf.id] ?? ""} onChange={(event) => setTagDrafts((current) => ({ ...current, [conf.id]: event.target.value }))} /><button type="submit">+</button></form></div>}</div>
+                <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.round ? `${conf.round} · ` : ""}{conf.location} · {conf.topics.join(" / ")}</span>{view !== "deadlines" && <div className="custom-tags">{(customTags[conf.id] ?? []).map((tag) => <button key={tag} style={labelStyle(tag)} onClick={() => removeTag(conf.id, tag)} title={`Remove ${tag}`}>#{tag} ×</button>)}<form onSubmit={(event) => { event.preventDefault(); addTag(conf.id); }}><input aria-label={view === "decisions" ? `Assign student or label to ${conf.short}` : `Add label to ${conf.short}`} placeholder={view === "decisions" ? "Student / label…" : "Add label…"} value={tagDrafts[conf.id] ?? ""} onChange={(event) => setTagDrafts((current) => ({ ...current, [conf.id]: event.target.value }))} /><button type="submit" aria-label={view === "decisions" ? `Assign to ${conf.short}` : `Add label to ${conf.short}`}>+</button></form></div>}</div>
                 <div className="timeline-rank">CORE {conf.rank}</div>
                 <div className="deadline-track" aria-label={`${countdown.days} days until ${view === "decisions" ? "notification" : "submission"}`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
                 <div className="timeline-count"><strong>{countdown.text}{conf.estimated ? " · EST." : ""}</strong><span>{conf.estimated ? "Estimated submit" : "Submit"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>{conf.estimated ? "Estimated notification" : "Notification"} · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
