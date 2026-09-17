@@ -23,6 +23,20 @@ type Conference = {
 
 const selectedConferences: Conference[] = [
   {
+    id: "asiaccs-2027-cycle-1", short: "ASIA CCS", year: 2027,
+    name: "ACM Asia Conference on Computer and Communications Security",
+    deadline: "2026-08-21T23:59:00-12:00", notification: "2026-11-13T23:59:00-12:00", timezone: "AoE",
+    dateLabel: "July 12–16, 2027", location: "Macau", topics: ["Security", "Internet"], rank: "A", round: "Cycle 1",
+    note: "Official ASIA CCS 2027 first submission cycle.", url: "https://asiaccs2027.cityu.edu.mo/call-for-papers/index.html", dblp: "https://dblp.org/db/conf/asiaccs/",
+  },
+  {
+    id: "asiaccs-2027-cycle-2", short: "ASIA CCS", year: 2027,
+    name: "ACM Asia Conference on Computer and Communications Security",
+    deadline: "2026-12-11T23:59:00-12:00", notification: "2027-03-31T23:59:00-12:00", timezone: "AoE",
+    dateLabel: "July 12–16, 2027", location: "Macau", topics: ["Security", "Internet"], rank: "A", round: "Cycle 2",
+    note: "Official ASIA CCS 2027 second submission cycle.", url: "https://asiaccs2027.cityu.edu.mo/call-for-papers/index.html", dblp: "https://dblp.org/db/conf/asiaccs/",
+  },
+  {
     id: "sec-2026", short: "SEC", year: 2026,
     name: "ACM/IEEE Symposium on Edge Computing",
     deadline: "2026-05-08T23:59:00-12:00", notification: "2026-07-29T23:59:00-12:00", timezone: "AoE",
@@ -241,7 +255,7 @@ const rankedNetworkingVenues: Conference[] = rankedNetworkingVenueSeeds.map(([id
 
 const conferences = [...selectedConferences, ...rankedNetworkingVenues];
 
-const topics = ["Internet", "Systems", "Wireless", "Measurement", "Mobile", "Datacenter", "Management", "Reliability", "Real-Time", "Emerging"];
+const topics = ["Internet", "Systems", "Wireless", "Security", "Measurement", "Mobile", "Datacenter", "Management", "Reliability", "Real-Time", "Emerging"];
 type View = "deadlines" | "watchlist";
 
 function timeLeft(deadline: string | undefined, now: number | null) {
@@ -371,7 +385,7 @@ export default function Home() {
               const countdown = timeLeft(conf.deadline, now);
               const position = Math.max(2, Math.min(96, (countdown.days / 240) * 100));
               return <article className={`timeline-row ${countdown.ended ? "past" : ""}`} key={conf.id}>
-                <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.location} · {conf.topics.join(" / ")}</span>{view === "watchlist" && <div className="custom-tags">{(customTags[conf.id] ?? []).map((tag) => <button key={tag} onClick={() => removeTag(conf.id, tag)} title={`Remove ${tag}`}>#{tag} ×</button>)}<form onSubmit={(event) => { event.preventDefault(); addTag(conf.id); }}><input aria-label={`Add label to ${conf.short}`} placeholder="Add label…" value={tagDrafts[conf.id] ?? ""} onChange={(event) => setTagDrafts((current) => ({ ...current, [conf.id]: event.target.value }))} /><button type="submit">+</button></form></div>}</div>
+                <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.round ? `${conf.round} · ` : ""}{conf.location} · {conf.topics.join(" / ")}</span>{view === "watchlist" && <div className="custom-tags">{(customTags[conf.id] ?? []).map((tag) => <button key={tag} onClick={() => removeTag(conf.id, tag)} title={`Remove ${tag}`}>#{tag} ×</button>)}<form onSubmit={(event) => { event.preventDefault(); addTag(conf.id); }}><input aria-label={`Add label to ${conf.short}`} placeholder="Add label…" value={tagDrafts[conf.id] ?? ""} onChange={(event) => setTagDrafts((current) => ({ ...current, [conf.id]: event.target.value }))} /><button type="submit">+</button></form></div>}</div>
                 <div className="timeline-rank">CORE {conf.rank}</div>
                 <div className="deadline-track" aria-label={`${countdown.days} days remaining`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
                 <div className="timeline-count"><strong>{countdown.text}{conf.estimated ? " · EST." : ""}</strong><span>{conf.estimated ? "Estimated submit" : "Submit"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>{conf.estimated ? "Estimated notification" : "Notification"} · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
