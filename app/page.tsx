@@ -374,6 +374,9 @@ const rankedNetworkingVenues: Conference[] = rankedNetworkingVenueSeeds.map(([id
 }));
 
 const conferences = [...selectedConferences, ...rankedNetworkingVenues];
+const distinctConferenceCount = new Set(
+  conferences.filter((conf) => conf.id !== "ieee-tnsm-journal").map((conf) => conf.name),
+).size;
 
 const topics = ["Internet", "Systems", "Wireless", "Security", "Measurement", "Mobile", "Datacenter", "Management", "Reliability", "Real-Time", "Emerging"];
 type View = "deadlines" | "watchlist" | "decisions";
@@ -528,7 +531,7 @@ export default function Home() {
         </aside>
 
         <section className="desk-content" id="deadlines">
-          <div className="desk-title"><div><span>{view === "deadlines" ? "Complete conference registry" : view === "watchlist" ? "Personal conference collection" : "Acceptance notification tracker"}</span><h1>{view === "deadlines" ? "All networking deadlines" : view === "watchlist" ? "My watchlist" : "Awaiting decisions"}</h1></div><p>{view === "deadlines" ? `${conferences.length} tracked conferences` : view === "watchlist" ? `${watchlistIds.length} saved · this device` : `${decisionIds.length} pending · this device`}</p></div>
+          <div className="desk-title"><div><span>{view === "deadlines" ? "Complete conference registry" : view === "watchlist" ? "Personal conference collection" : "Acceptance notification tracker"}</span><h1>{view === "deadlines" ? "All networking deadlines" : view === "watchlist" ? "My watchlist" : "Awaiting decisions"}</h1></div><p>{view === "deadlines" ? `${conferences.length} tracked deadlines · ${distinctConferenceCount} conferences` : view === "watchlist" ? `${watchlistIds.length} saved · this device` : `${decisionIds.length} pending · this device`}</p></div>
 
           <div className="timeline-heading"><h2>{view === "deadlines" ? "Submission timeline" : view === "watchlist" ? "Saved conferences" : "Notification timeline"}</h2><div><span><i className="blue-dot" />{view === "decisions" ? "Decision" : "Paper"}</span><span><i className="gray-dot" />Past</span></div></div>
           <div className="timeline-list">
@@ -547,7 +550,7 @@ export default function Home() {
           </div>
 
           <div className="axis-row"><span>Now</span><span>+60d</span><span>+120d</span><span>+180d</span><span>+240d</span></div>
-          <footer><span>{view === "deadlines" ? `Source registry · ${filtered.length} shown · ${conferences.length} tracked conferences` : view === "watchlist" ? `Personal watchlist · ${filtered.length} shown · ${watchlistIds.length} saved` : `Decision tracker · ${filtered.length} shown · ${decisionIds.length} pending`}</span><span>Updated 17 September 2026</span></footer>
+          <footer><span>{view === "deadlines" ? `Source registry · ${filtered.length} shown · ${conferences.length} tracked deadlines · ${distinctConferenceCount} conferences` : view === "watchlist" ? `Personal watchlist · ${filtered.length} shown · ${watchlistIds.length} saved` : `Decision tracker · ${filtered.length} shown · ${decisionIds.length} pending`}</span><span>Updated 17 September 2026</span></footer>
         </section>
       </div>
     </main>
