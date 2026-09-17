@@ -136,6 +136,13 @@ const selectedConferences: Conference[] = [
     url: "https://www.comsoc.org/publications/journals/ieee-transactions-network-and-service-management", dblp: "https://dblp.org/db/journals/tnsm/",
   },
   {
+    id: "noms-2026", short: "NOMS", year: 2026,
+    name: "IEEE/IFIP Network Operations and Management Symposium",
+    deadline: "2025-10-27T23:59:00-12:00", notification: "2026-01-18T23:59:00-12:00", timezone: "AoE",
+    dateLabel: "May 18–22, 2026", location: "Rome, Italy", topics: ["Management", "Internet"], rank: "B",
+    note: "Archived NOMS 2026 main-track record; NOMS is biennial, so its next edition is outside the 2025–2027 window.", url: "https://noms2026.ieee-noms.org/", dblp: "https://dblp.org/db/conf/noms/",
+  },
+  {
     id: "netsoft-next", short: "NetSoft", year: 2027, name: "IEEE Conference on Network Softwarization",
     deadline: "2027-01-12T23:59:00-12:00", notification: "2027-03-23T23:59:00-12:00", estimated: true,
     timezone: "AoE", dateLabel: "TBA", location: "TBA", topics: ["Systems", "Management"], rank: "B",
