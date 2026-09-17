@@ -23,6 +23,20 @@ type Conference = {
 
 const selectedConferences: Conference[] = [
   {
+    id: "sec-2026", short: "SEC", year: 2026,
+    name: "ACM/IEEE Symposium on Edge Computing",
+    deadline: "2026-05-08T23:59:00-12:00", notification: "2026-07-29T23:59:00-12:00", timezone: "AoE",
+    dateLabel: "October 13–16, 2026", location: "Santa Clara, California, USA", topics: ["Systems", "Datacenter"], rank: "Unranked",
+    note: "Official SEC 2026 main-paper deadline, extended from May 1 to May 8.", url: "https://acm-ieee-sec.org/2026/", dblp: "https://dblp.org/db/conf/ieeesec/",
+  },
+  {
+    id: "dsn-2026", short: "DSN", year: 2026,
+    name: "IEEE/IFIP International Conference on Dependable Systems and Networks",
+    deadline: "2025-12-04T23:59:00-12:00", notification: "2026-03-19T23:59:00-12:00", timezone: "AoE",
+    dateLabel: "June 22–25, 2026", location: "Charlotte, North Carolina, USA", topics: ["Reliability", "Systems"], rank: "A",
+    note: "Official DSN 2026 Research Track dates.", url: "https://dsn2026.github.io/", dblp: "https://dblp.org/db/conf/dsn/",
+  },
+  {
     id: "rtns-2026-round-3", short: "RTNS", year: 2026,
     name: "International Conference on Real-Time Networks and Systems",
     deadline: "2026-08-20T23:59:00-12:00", notification: "2026-09-28T23:59:00-12:00", timezone: "AoE",
@@ -189,7 +203,6 @@ type RankedVenueSeed = [string, string, string, "A*" | "A" | "B", string, string
 
 const rankedNetworkingVenueSeeds: RankedVenueSeed[] = [
   ["percom", "PerCom", "IEEE International Conference on Pervasive Computing and Communications", "A*", "https://www.percom.org/", "percom", ["Mobile", "Systems"]],
-  ["dsn", "DSN", "IEEE/IFIP International Conference on Dependable Systems and Networks", "A", "https://dsn.org/", "dsn", ["Reliability", "Systems"]],
   ["mobisys", "MobiSys", "ACM International Conference on Mobile Systems, Applications, and Services", "A", "https://www.sigmobile.org/mobisys/", "mobisys", ["Mobile", "Systems"]],
   ["mswim", "MSWiM", "ACM International Conference on Modeling, Analysis and Simulation of Wireless and Mobile Systems", "A", "https://mswimconf.com/", "mswim", ["Wireless", "Mobile"]],
   ["cnsm", "CNSM", "International Conference on Network and Service Management", "B", "https://www.cnsm-conf.org/", "cnsm", ["Management", "Internet"]],
