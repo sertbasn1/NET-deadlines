@@ -37,6 +37,13 @@ const selectedConferences: Conference[] = [
     note: "Official DSN 2026 Research Track dates.", url: "https://dsn2026.github.io/", dblp: "https://dblp.org/db/conf/dsn/",
   },
   {
+    id: "dsn-2027", short: "DSN", year: 2027,
+    name: "IEEE International Conference on Dependable Systems and Networks",
+    deadline: "2026-12-02T23:59:00-12:00", notification: "2027-03-18T23:59:00-12:00", timezone: "AoE",
+    dateLabel: "June 22–25, 2027", location: "Berlin, Germany", topics: ["Reliability", "Systems"], rank: "A",
+    note: "Official DSN 2027 Research Track dates; abstract registration is due November 25, 2026.", url: "https://dsn2027-berlin.github.io/", dblp: "https://dblp.org/db/conf/dsn/",
+  },
+  {
     id: "rtns-2026-round-3", short: "RTNS", year: 2026,
     name: "International Conference on Real-Time Networks and Systems",
     deadline: "2026-08-20T23:59:00-12:00", notification: "2026-09-28T23:59:00-12:00", timezone: "AoE",
