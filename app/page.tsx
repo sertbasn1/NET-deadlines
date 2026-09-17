@@ -72,6 +72,21 @@ const selectedConferences: Conference[] = [
     note: "Third submission round for RTNS 2026.", url: "https://2026.rtns-conference.org/", dblp: "https://dblp.org/db/conf/rtns/",
   },
   {
+    id: "rtas-2026", short: "RTAS", year: 2026,
+    name: "IEEE Real-Time and Embedded Technology and Applications Symposium",
+    deadline: "2025-11-13T23:59:00-12:00", notification: "2026-01-29T23:59:00-12:00", timezone: "AoE",
+    dateLabel: "May 12–14, 2026", location: "Saint-Malo, France", topics: ["Real-Time", "Systems"], rank: "A",
+    note: "Official RTAS 2026 main-track submission and notification dates.", url: "https://2026.rtas.org/", dblp: "https://dblp.org/db/conf/rtas/",
+  },
+  {
+    id: "ieee-tnsm-journal", short: "IEEE TNSM Journal", year: 2026,
+    name: "IEEE Transactions on Network and Service Management",
+    timezone: "Rolling", dateLabel: "Regular submissions welcome anytime", location: "Online journal",
+    topics: ["Management", "Reliability"], rank: "Unranked",
+    note: "Journal entry: regular-paper submissions are accepted continuously; special issues may have separate deadlines.",
+    url: "https://www.comsoc.org/publications/journals/ieee-transactions-network-and-service-management", dblp: "https://dblp.org/db/journals/tnsm/",
+  },
+  {
     id: "noms-next", short: "NOMS", year: 2028, name: "IEEE Network Operations and Management Symposium",
     deadline: "2027-10-15T23:59:00-12:00", notification: "2028-01-15T23:59:00-12:00", estimated: true,
     timezone: "AoE", dateLabel: "TBA", location: "TBA", topics: ["Management", "Internet"], rank: "B",
