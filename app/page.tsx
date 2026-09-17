@@ -23,6 +23,13 @@ type Conference = {
 
 const selectedConferences: Conference[] = [
   {
+    id: "icdcs-2027", short: "ICDCS", year: 2027,
+    name: "IEEE International Conference on Distributed Computing Systems",
+    deadline: "2027-01-21T23:59:00-12:00", notification: "2027-04-27T23:59:00-12:00", estimated: true, timezone: "AoE",
+    dateLabel: "July 5–8, 2027", location: "Melbourne, Australia", topics: ["Systems", "Datacenter"], rank: "A",
+    note: "Conference dates are official; submission and notification are estimates based on ICDCS 2026 while the 2027 CFP remains TBA.", url: "https://icdcs2027.icdcs.org/", dblp: "https://dblp.org/db/conf/icdcs/",
+  },
+  {
     id: "asiaccs-2027-cycle-1", short: "ASIA CCS", year: 2027,
     name: "ACM Asia Conference on Computer and Communications Security",
     deadline: "2026-08-21T23:59:00-12:00", notification: "2026-11-13T23:59:00-12:00", timezone: "AoE",
