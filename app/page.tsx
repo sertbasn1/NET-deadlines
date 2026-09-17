@@ -366,11 +366,36 @@ const rankedNetworkingVenueSeeds: RankedVenueSeed[] = [
   ["wiopt", "WiOpt", "International Symposium on Modeling and Optimization in Mobile, Ad Hoc, and Wireless Networks", "B", "https://wiopt.org/", "wiopt", ["Wireless", "Mobile"]],
 ];
 
+const rankedVenuePredictions: Record<string, Pick<Conference, "deadline" | "notification"> & Partial<Conference>> = {
+  percom: { deadline: "2026-09-18T23:59:00-12:00", notification: "2026-12-14T23:59:00-12:00" },
+  mobisys: { deadline: "2026-12-04T23:59:00-12:00", notification: "2027-03-10T23:59:00-12:00" },
+  mswim: { deadline: "2027-06-12T23:59:00-12:00", notification: "2027-08-01T23:59:00-12:00" },
+  cnsm: { deadline: "2027-05-31T23:59:00-12:00", notification: "2027-07-15T23:59:00-12:00" },
+  dcoss: { deadline: "2027-01-20T23:59:00-12:00", notification: "2027-03-20T23:59:00-12:00" },
+  ewsn: { deadline: "2026-10-01T23:59:00-12:00", notification: "2026-12-15T23:59:00-12:00" },
+  icccn: { deadline: "2027-02-10T23:59:00-12:00", notification: "2027-04-15T23:59:00-12:00" },
+  icnp: { deadline: "2027-05-20T23:59:00-12:00", notification: "2027-07-25T23:59:00-12:00" },
+  ccnc: { deadline: "2026-09-18T23:59:00-12:00", notification: "2026-10-30T23:59:00-12:00" },
+  im: { deadline: "2026-09-04T23:59:00-12:00", notification: "2026-12-15T23:59:00-12:00" },
+  iwcmc: { deadline: "2027-01-15T23:59:00-12:00", notification: "2027-03-15T23:59:00-12:00" },
+  iwqos: { deadline: "2027-02-15T23:59:00-12:00", notification: "2027-04-15T23:59:00-12:00" },
+  mass: { deadline: "2027-04-20T23:59:00-12:00", notification: "2027-06-15T23:59:00-12:00" },
+  mobihoc: { deadline: "2027-03-15T23:59:00-12:00", notification: "2027-05-20T23:59:00-12:00" },
+  pam: { deadline: "2026-10-20T23:59:00-12:00", notification: "2026-12-10T23:59:00-12:00" },
+  pimrc: { deadline: "2027-03-15T23:59:00-12:00", notification: "2027-06-15T23:59:00-12:00" },
+  secon: { deadline: "2027-03-31T23:59:00-12:00", notification: "2027-05-31T23:59:00-12:00" },
+  vtc: { deadline: "2026-09-30T23:59:00-12:00", notification: "2026-12-20T23:59:00-12:00", estimated: false, dateLabel: "June 20–23, 2027", location: "Hamburg, Germany", note: "Official VTC2027-Spring regular-paper and notification dates." },
+  wcnc: { deadline: "2026-09-25T23:59:00-12:00", notification: "2026-12-15T23:59:00-12:00" },
+  wimob: { deadline: "2027-05-15T23:59:00-12:00", notification: "2027-07-15T23:59:00-12:00" },
+  wiopt: { deadline: "2027-02-15T23:59:00-12:00", notification: "2027-04-15T23:59:00-12:00" },
+};
+
 const rankedNetworkingVenues: Conference[] = rankedNetworkingVenueSeeds.map(([id, short, name, rank, url, dblp, venueTopics]) => ({
   id: `${id}-next`, short, year: 2027, name, rank, url,
   dblp: `https://dblp.org/db/conf/${dblp}/`, topics: venueTopics,
-  timezone: "TBA", dateLabel: "TBA", location: "TBA",
-  note: "Tracked from the ICORE 2026 A*/A/B networking list; next official dates are TBA.",
+  timezone: "AoE", dateLabel: "2027 · dates TBA", location: "TBA", estimated: true,
+  note: "Estimated from recent submission cycles; replace with the official 2027 CFP dates when announced.",
+  ...rankedVenuePredictions[id],
 }));
 
 const conferences = [...selectedConferences, ...rankedNetworkingVenues];
