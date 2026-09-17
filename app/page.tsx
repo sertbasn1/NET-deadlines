@@ -263,7 +263,7 @@ const rankedNetworkingVenues: Conference[] = rankedNetworkingVenueSeeds.map(([id
 const conferences = [...selectedConferences, ...rankedNetworkingVenues];
 
 const topics = ["Internet", "Systems", "Wireless", "Security", "Measurement", "Mobile", "Datacenter", "Management", "Reliability", "Real-Time", "Emerging"];
-type View = "deadlines" | "watchlist";
+type View = "deadlines" | "watchlist" | "decisions";
 
 function timeLeft(deadline: string | undefined, now: number | null) {
   if (!deadline) return { ended: false, announced: false, text: "Dates TBA", days: 240 };
@@ -306,6 +306,7 @@ export default function Home() {
   const [ranks, setRanks] = useState<string[]>([]);
   const [showPast, setShowPast] = useState(true);
   const [watchlistIds, setWatchlistIds] = useState<string[]>([]);
+  const [decisionIds, setDecisionIds] = useState<string[]>([]);
   const [customTags, setCustomTags] = useState<Record<string, string[]>>({});
   const [tagDrafts, setTagDrafts] = useState<Record<string, string>>({});
   const [preferencesReady, setPreferencesReady] = useState(false);
@@ -324,6 +325,11 @@ export default function Home() {
         setWatchlistIds(parsed.filter((id) => conferences.some((conf) => conf.id === id)));
       } catch { /* Keep an empty watchlist when stored data is invalid. */ }
     }
+    const savedDecisions = window.localStorage.getItem("netdeadlines-decisions");
+    if (savedDecisions) try {
+      const parsed = JSON.parse(savedDecisions) as string[];
+      setDecisionIds(parsed.filter((id) => conferences.some((conf) => conf.id === id)));
+    } catch { /* Keep an empty decision list when stored data is invalid. */ }
     const savedTags = window.localStorage.getItem("netdeadlines-tags");
     if (savedTags) try { setCustomTags(JSON.parse(savedTags) as Record<string, string[]>); } catch { /* Ignore invalid saved tags. */ }
     setPreferencesReady(true);
@@ -334,17 +340,21 @@ export default function Home() {
   }, [watchlistIds, preferencesReady]);
 
   useEffect(() => {
+    if (preferencesReady) window.localStorage.setItem("netdeadlines-decisions", JSON.stringify(decisionIds));
+  }, [decisionIds, preferencesReady]);
+
+  useEffect(() => {
     if (preferencesReady) window.localStorage.setItem("netdeadlines-tags", JSON.stringify(customTags));
   }, [customTags, preferencesReady]);
 
   const filtered = useMemo(() => conferences
-    .filter((conf) => showPast || !timeLeft(conf.deadline, now).ended)
+    .filter((conf) => showPast || !timeLeft(view === "decisions" ? conf.notification : conf.deadline, now).ended)
     .filter((conf) => !activeTopics.length || activeTopics.some((topic) => conf.topics.includes(topic)))
     .filter((conf) => !ranks.length || ranks.includes(conf.rank))
-    .filter((conf) => view === "deadlines" || watchlistIds.includes(conf.id))
+    .filter((conf) => view === "deadlines" || (view === "watchlist" ? watchlistIds.includes(conf.id) : decisionIds.includes(conf.id)))
     .filter((conf) => `${conf.short} ${conf.name} ${conf.location} ${conf.topics.join(" ")} ${(customTags[conf.id] ?? []).join(" ")}`.toLowerCase().includes(query.toLowerCase()))
-    .sort((a, b) => a.deadline && b.deadline ? +new Date(a.deadline) - +new Date(b.deadline) : a.deadline ? -1 : b.deadline ? 1 : a.short.localeCompare(b.short)),
-  [showPast, activeTopics, ranks, query, now, view, watchlistIds, customTags]);
+    .sort((a, b) => { const aDate = view === "decisions" ? a.notification : a.deadline; const bDate = view === "decisions" ? b.notification : b.deadline; return aDate && bDate ? +new Date(aDate) - +new Date(bDate) : aDate ? -1 : bDate ? 1 : a.short.localeCompare(b.short); }),
+  [showPast, activeTopics, ranks, query, now, view, watchlistIds, decisionIds, customTags]);
 
   const toggle = (item: string, list: string[], update: (next: string[]) => void) =>
     update(list.includes(item) ? list.filter((value) => value !== item) : [...list, item]);
@@ -356,6 +366,7 @@ export default function Home() {
   };
 
   const toggleWatchlist = (id: string) => setWatchlistIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+  const toggleDecision = (id: string) => setDecisionIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   const addTag = (id: string) => {
     const tag = (tagDrafts[id] ?? "").trim().replace(/^#/, "");
     if (!tag) return;
@@ -368,7 +379,7 @@ export default function Home() {
     <main className="desk-shell" id="top">
       <header className="desk-header">
         <a className="desk-brand" href="#top" aria-label="NetDeadlines home"><span className="desk-mark"><i /><i /></span>NetDeadlines</a>
-        <nav aria-label="Main navigation"><button className={view === "deadlines" ? "selected" : ""} onClick={() => setView("deadlines")}>All deadlines</button><button className={view === "watchlist" ? "selected" : ""} onClick={() => setView("watchlist")}>My watchlist <small>{watchlistIds.length}</small></button><a href="https://portal.core.edu.au/conf-ranks/" target="_blank" rel="noreferrer">CORE Ranking ↗</a></nav>
+        <nav aria-label="Main navigation"><button className={view === "deadlines" ? "selected" : ""} onClick={() => setView("deadlines")}>All deadlines</button><button className={view === "watchlist" ? "selected" : ""} onClick={() => setView("watchlist")}>My watchlist <small>{watchlistIds.length}</small></button><button className={view === "decisions" ? "selected" : ""} onClick={() => setView("decisions")}>Awaiting decisions <small>{decisionIds.length}</small></button><a href="https://portal.core.edu.au/conf-ranks/" target="_blank" rel="noreferrer">CORE Ranking ↗</a></nav>
         <div className="header-actions"><span>Sync · 31 Jul 2026</span><a href="https://github.com/" target="_blank" rel="noreferrer">+ Contribute</a></div>
       </header>
 
@@ -380,30 +391,30 @@ export default function Home() {
           <div className="rail-field"><b>CORE rank</b><div className="rank-checks">{["A*", "A", "B", "C"].map((rank) => <button className={ranks.includes(rank) ? "active" : ""} onClick={() => toggle(rank, ranks, setRanks)} key={rank}><span className="check-box">✓</span>CORE {rank}<small>{String(conferences.filter((conf) => conf.rank === rank).length).padStart(2, "0")}</small></button>)}</div></div>
           <label className="show-past"><input type="checkbox" checked={showPast} onChange={(event) => setShowPast(event.target.checked)} /><span>Show past deadlines</span></label>
           <button className="reset-button" onClick={clearFilters}>Reset filters</button>
-          <div className="rail-note"><b>{view === "watchlist" ? "Your labels" : "Deadline signal"}</b><p>{view === "watchlist" ? "Add project names or tags to organize the conferences you follow. They stay on this device." : "Countdowns use each venue’s listed submission timezone. Always verify the official CFP."}</p></div>
+          <div className="rail-note"><b>{view === "watchlist" ? "Your labels" : view === "decisions" ? "Decision tracker" : "Deadline signal"}</b><p>{view === "watchlist" ? "Add project names or tags to organize the conferences you follow. They stay on this device." : view === "decisions" ? "This view counts down to each acceptance-notification date and stays on this device." : "Countdowns use each venue’s listed submission timezone. Always verify the official CFP."}</p></div>
         </aside>
 
         <section className="desk-content" id="deadlines">
-          <div className="desk-title"><div><span>{view === "deadlines" ? "Complete conference registry" : "Personal conference collection"}</span><h1>{view === "deadlines" ? "All networking deadlines" : "My watchlist"}</h1></div><p>{view === "deadlines" ? `${conferences.length} tracked conferences` : `${watchlistIds.length} saved · this device`}</p></div>
+          <div className="desk-title"><div><span>{view === "deadlines" ? "Complete conference registry" : view === "watchlist" ? "Personal conference collection" : "Acceptance notification tracker"}</span><h1>{view === "deadlines" ? "All networking deadlines" : view === "watchlist" ? "My watchlist" : "Awaiting decisions"}</h1></div><p>{view === "deadlines" ? `${conferences.length} tracked conferences` : view === "watchlist" ? `${watchlistIds.length} saved · this device` : `${decisionIds.length} pending · this device`}</p></div>
 
-          <div className="timeline-heading"><h2>{view === "deadlines" ? "Submission timeline" : "Saved conferences"}</h2><div><span><i className="blue-dot" />Paper</span><span><i className="gray-dot" />Past</span></div></div>
+          <div className="timeline-heading"><h2>{view === "deadlines" ? "Submission timeline" : view === "watchlist" ? "Saved conferences" : "Notification timeline"}</h2><div><span><i className="blue-dot" />{view === "decisions" ? "Decision" : "Paper"}</span><span><i className="gray-dot" />Past</span></div></div>
           <div className="timeline-list">
             {filtered.map((conf) => {
-              const countdown = timeLeft(conf.deadline, now);
+              const countdown = timeLeft(view === "decisions" ? conf.notification : conf.deadline, now);
               const position = Math.max(2, Math.min(96, (countdown.days / 240) * 100));
               return <article className={`timeline-row ${countdown.ended ? "past" : ""}`} key={conf.id}>
                 <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conf.short} {conf.year} ↗</a><span>{conf.round ? `${conf.round} · ` : ""}{conf.location} · {conf.topics.join(" / ")}</span>{view === "watchlist" && <div className="custom-tags">{(customTags[conf.id] ?? []).map((tag) => <button key={tag} onClick={() => removeTag(conf.id, tag)} title={`Remove ${tag}`}>#{tag} ×</button>)}<form onSubmit={(event) => { event.preventDefault(); addTag(conf.id); }}><input aria-label={`Add label to ${conf.short}`} placeholder="Add label…" value={tagDrafts[conf.id] ?? ""} onChange={(event) => setTagDrafts((current) => ({ ...current, [conf.id]: event.target.value }))} /><button type="submit">+</button></form></div>}</div>
                 <div className="timeline-rank">CORE {conf.rank}</div>
-                <div className="deadline-track" aria-label={`${countdown.days} days remaining`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
+                <div className="deadline-track" aria-label={`${countdown.days} days until ${view === "decisions" ? "notification" : "submission"}`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
                 <div className="timeline-count"><strong>{countdown.text}{conf.estimated ? " · EST." : ""}</strong><span>{conf.estimated ? "Estimated submit" : "Submit"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>{conf.estimated ? "Estimated notification" : "Notification"} · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
-                <div className="timeline-actions"><button className={watchlistIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleWatchlist(conf.id)} aria-pressed={watchlistIds.includes(conf.id)}>{watchlistIds.includes(conf.id) ? (view === "watchlist" ? "Remove ×" : "Saved ✓") : "+ Watch"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a>{conf.deadline && !conf.estimated && <a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a>}</div>
+                <div className="timeline-actions"><button className={watchlistIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleWatchlist(conf.id)} aria-pressed={watchlistIds.includes(conf.id)}>{watchlistIds.includes(conf.id) ? (view === "watchlist" ? "Remove ×" : "Saved ✓") : "+ Watch"}</button><button className={decisionIds.includes(conf.id) ? "decision-button active" : "decision-button"} onClick={() => toggleDecision(conf.id)} aria-pressed={decisionIds.includes(conf.id)}>{decisionIds.includes(conf.id) ? (view === "decisions" ? "Remove ×" : "Awaiting ✓") : "+ Await"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a>{conf.deadline && !conf.estimated && <a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a>}</div>
               </article>;
             })}
-            {!filtered.length && <div className="empty-state"><strong>{view === "watchlist" && !watchlistIds.length ? "Your watchlist is empty." : "No deadlines found."}</strong><span>{view === "watchlist" && !watchlistIds.length ? "Open All deadlines and select + Watch to add conferences." : "Reset the filters to restore the full queue."}</span>{view === "watchlist" && !watchlistIds.length && <button className="empty-action" onClick={() => setView("deadlines")}>Browse all deadlines</button>}</div>}
+            {!filtered.length && <div className="empty-state"><strong>{view === "watchlist" && !watchlistIds.length ? "Your watchlist is empty." : view === "decisions" && !decisionIds.length ? "No decisions are being tracked." : "No deadlines found."}</strong><span>{view === "watchlist" && !watchlistIds.length ? "Open All deadlines and select + Watch to add conferences." : view === "decisions" && !decisionIds.length ? "Open All deadlines and select + Await after submitting a paper." : "Reset the filters to restore the full queue."}</span>{view !== "deadlines" && !(view === "watchlist" ? watchlistIds.length : decisionIds.length) && <button className="empty-action" onClick={() => setView("deadlines")}>Browse all deadlines</button>}</div>}
           </div>
 
           <div className="axis-row"><span>Now</span><span>+60d</span><span>+120d</span><span>+180d</span><span>+240d</span></div>
-          <footer><span>{view === "deadlines" ? `Source registry · ${filtered.length} shown · ${conferences.length} tracked conferences` : `Personal watchlist · ${filtered.length} shown · ${watchlistIds.length} saved`}</span><span>Updated 15 September 2026</span></footer>
+          <footer><span>{view === "deadlines" ? `Source registry · ${filtered.length} shown · ${conferences.length} tracked conferences` : view === "watchlist" ? `Personal watchlist · ${filtered.length} shown · ${watchlistIds.length} saved` : `Decision tracker · ${filtered.length} shown · ${decisionIds.length} pending`}</span><span>Updated 17 September 2026</span></footer>
         </section>
       </div>
     </main>
