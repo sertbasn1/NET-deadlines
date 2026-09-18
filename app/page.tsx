@@ -365,8 +365,8 @@ const selectedConferences: Conference[] = [
     location: "Salt Lake City, Utah, USA",
     topics: ["Emerging", "Internet"],
     rank: "B",
-    note: "Short, forward-looking papers on new networking ideas.",
-    url: "https://conferences.sigcomm.org/hotnets/",
+    note: "Official HotNets 2026 dates: submission July 16 (23:59 AoE), notification September 24, and workshop November 16–17 at the University of Utah.",
+    url: "https://conferences.sigcomm.org/hotnets/2026/",
     dblp: "https://dblp.org/db/conf/hotnets/",
   },
   {
