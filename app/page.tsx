@@ -150,9 +150,9 @@ const selectedConferences: Conference[] = [
   },
   {
     id: "icc-next", short: "ICC", year: 2027, name: "IEEE International Conference on Communications",
-    deadline: "2026-09-29T23:59:00-12:00", notification: "2027-01-12T23:59:00-12:00", estimated: true,
-    timezone: "AoE", dateLabel: "2027", location: "Washington, D.C., USA", topics: ["Wireless", "Internet"], rank: "B",
-    note: "Prediction follows the IEEE ICC 2026 paper cycle.", url: "https://www.ieee-icc.org/", dblp: "https://dblp.org/db/conf/icc/",
+    deadline: "2026-10-16T23:59:00-12:00", notification: "2027-01-15T23:59:00-12:00",
+    timezone: "AoE (assumed)", dateLabel: "May 30–June 3, 2027", location: "Washington, D.C., USA", topics: ["Wireless", "Internet"], rank: "B",
+    note: "Official ICC 2027 technical-symposium dates. The CFP lists October 16 for submission and January 15 for notification; exact cutoff times are unspecified, so the countdown uses 23:59 AoE as a planning assumption. Confirm the cutoff in EDAS. Camera-ready papers are due February 19, 2027.", url: "https://icc2027.ieee-icc.org/authors/call-symposium-papers", dblp: "https://dblp.org/db/conf/icc/",
   },
   {
     id: "globecom-next", short: "GLOBECOM", year: 2027, name: "IEEE Global Communications Conference",
