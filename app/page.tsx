@@ -480,6 +480,7 @@ function labelStyle(label: string) {
 }
 
 function conferenceDisplayName(conf: Conference) {
+  if (conf.timezone === "Rolling") return conf.short;
   const numberedRound = conf.round?.match(/^(?:cycle|round)\s*(\d+)$/i);
   if (numberedRound) return `${conf.short.replace(/\s+/g, "")}${conf.year}-Round${numberedRound[1]}`;
   return `${conf.short} ${conf.year}${conf.round ? ` — ${conf.round}` : ""}`;
@@ -600,13 +601,14 @@ export default function Home() {
           <div className="timeline-heading"><h2>{view === "deadlines" ? "Submission timeline" : view === "watchlist" ? "Saved conferences" : "Notification timeline"}</h2><div><span><i className="blue-dot" />{view === "decisions" ? "Decision" : "Paper"}</span><span><i className="gray-dot" />Past</span></div></div>
           <div className="timeline-list">
             {filtered.map((conf) => {
-              const countdown = timeLeft(view === "decisions" ? conf.notification : conf.deadline, now);
+              const rolling = conf.timezone === "Rolling";
+              const countdown = rolling ? { ended: false, text: view === "decisions" ? "Under peer review" : "Open anytime", days: 240 } : timeLeft(view === "decisions" ? conf.notification : conf.deadline, now);
               const position = Math.max(2, Math.min(96, (countdown.days / 240) * 100));
               return <article className={`timeline-row ${countdown.ended ? "past" : ""}`} key={conf.id}>
                 <div className="timeline-name"><a href={conf.url} target="_blank" rel="noreferrer">{conferenceDisplayName(conf)} ↗</a><span>{conf.location} · {conf.topics.join(" / ")}</span>{view !== "deadlines" && <div className="custom-tags">{(customTags[conf.id] ?? []).map((tag) => <button key={tag} style={labelStyle(tag)} onClick={() => removeTag(conf.id, tag)} title={`Remove ${tag}`}>#{tag} ×</button>)}<form onSubmit={(event) => { event.preventDefault(); addTag(conf.id); }}><input aria-label={view === "decisions" ? `Assign student or label to ${conferenceDisplayName(conf)}` : `Add label to ${conferenceDisplayName(conf)}`} placeholder={view === "decisions" ? "Student / label…" : "Add label…"} value={tagDrafts[conf.id] ?? ""} onChange={(event) => setTagDrafts((current) => ({ ...current, [conf.id]: event.target.value }))} /><button type="submit" aria-label={view === "decisions" ? `Assign to ${conferenceDisplayName(conf)}` : `Add label to ${conferenceDisplayName(conf)}`}>+</button></form></div>}</div>
                 <div className="timeline-rank">CORE {conf.rank}</div>
-                <div className="deadline-track" aria-label={`${countdown.days} days until ${view === "decisions" ? "notification" : "submission"}`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
-                <div className="timeline-count"><strong>{countdown.text}{conf.estimated ? " · EST." : ""}</strong><span>{conf.estimated ? "Estimated submit" : "Submit"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>{conf.estimated ? "Estimated notification" : "Notification"} · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></div>
+                <div className="deadline-track" aria-label={rolling ? "Rolling submissions; no fixed deadline" : `${countdown.days} days until ${view === "decisions" ? "notification" : "submission"}`}><span className="track-fill" style={{ width: `${position}%` }} /><i style={{ left: `${position}%` }} /></div>
+                <div className="timeline-count"><strong>{countdown.text}{conf.estimated ? " · EST." : ""}</strong>{rolling ? <><span>Regular papers · Rolling submissions</span><span>Notification · After peer review</span></> : <><span>{conf.estimated ? "Estimated submit" : "Submit"} · {sourceDateLabel(conf.deadline)} · {conf.timezone}</span><span>{conf.estimated ? "Estimated notification" : "Notification"} · {conf.notification ? sourceDateLabel(conf.notification) : "TBA"}</span></>}</div>
                 <div className="timeline-actions"><button className={watchlistIds.includes(conf.id) ? "pin-button active" : "pin-button"} onClick={() => toggleWatchlist(conf.id)} aria-pressed={watchlistIds.includes(conf.id)}>{watchlistIds.includes(conf.id) ? (view === "watchlist" ? "Remove ×" : "Saved ✓") : "+ Watch"}</button><button className={decisionIds.includes(conf.id) ? "decision-button active" : "decision-button"} onClick={() => toggleDecision(conf.id)} aria-pressed={decisionIds.includes(conf.id)}>{decisionIds.includes(conf.id) ? (view === "decisions" ? "Remove ×" : "Awaiting ✓") : "+ Await"}</button><a href={conf.dblp} target="_blank" rel="noreferrer">DBLP</a>{conf.deadline && !conf.estimated && <a href={calendarHref(conf)} download={`${conf.id}.ics`}>iCal ↓</a>}</div>
               </article>;
             })}
