@@ -21,7 +21,7 @@ type Conference = {
   dblp: string;
 };
 
-const selectedConferences: Conference[] = [
+const selectedConferences: Conference[] = [{ id: "vtc-2027-spring-recent-results", short: "VTC", year: 2027, name: "IEEE Vehicular Technology Conference", deadline: "2027-02-01T23:59:00-12:00", notification: "2027-03-15T23:59:00-12:00", estimated: false, timezone: "AoE (assumed)", dateLabel: "June 20–23, 2027", location: "Hamburg, Germany", topics: ["Wireless", "Mobile"], rank: "B", round: "Spring · Recent Results", note: "Official Recent Results track: submission February 1, 2027; acceptance notification March 15; final paper April 15. Exact times and timezone are not specified on the homepage; countdown assumes end-of-day AoE. Verify the submission portal before submitting.", url: "https://events.vtsociety.org/vtc2027-spring/", dblp: "https://dblp.org/db/conf/vtc/" },
   {
     id: "icdcs-2027", short: "ICDCS", year: 2027,
     name: "IEEE International Conference on Distributed Computing Systems",
