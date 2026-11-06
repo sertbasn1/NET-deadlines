@@ -383,7 +383,7 @@ type RankedVenueSeed = [string, string, string, "A*" | "A" | "B", string, string
 
 const rankedNetworkingVenueSeeds: RankedVenueSeed[] = [
   ["percom", "PerCom", "IEEE International Conference on Pervasive Computing and Communications", "A*", "https://www.percom.org/", "percom", ["Mobile", "Systems"]],
-  ["mobisys", "MobiSys", "ACM International Conference on Mobile Systems, Applications, and Services", "A", "https://www.sigmobile.org/mobisys/", "mobisys", ["Mobile", "Systems"]],
+  ["mobisys", "MobiSys", "ACM International Conference on Mobile Systems, Applications, and Services", "A", "https://www.sigmobile.org/mobisys/2027/", "mobisys", ["Mobile", "Systems"]],
   ["mswim", "MSWiM", "ACM International Conference on Modeling, Analysis and Simulation of Wireless and Mobile Systems", "A", "https://mswimconf.com/", "mswim", ["Wireless", "Mobile"]],
   ["cnsm", "CNSM", "International Conference on Network and Service Management", "B", "https://www.cnsm-conf.org/", "cnsm", ["Management", "Internet"]],
   ["dcoss", "DCOSS", "IEEE International Conference on Distributed Computing in Smart Systems and the Internet of Things", "B", "https://dcoss.org/", "dcoss", ["Wireless", "Systems"]],
@@ -407,7 +407,7 @@ const rankedNetworkingVenueSeeds: RankedVenueSeed[] = [
 
 const rankedVenuePredictions: Record<string, Pick<Conference, "deadline" | "notification"> & Partial<Conference>> = {
   percom: { deadline: "2026-09-18T23:59:00-12:00", notification: "2026-12-14T23:59:00-12:00" },
-  mobisys: { deadline: "2026-12-04T23:59:00-12:00", notification: "2027-03-10T23:59:00-12:00" },
+  mobisys: { deadline: "2026-12-04T23:59:00-12:00", notification: "2027-03-06T23:59:00-12:00", estimated: false, dateLabel: "2027 · conference dates TBA", location: "Ho Chi Minh City, Vietnam", note: "Official MobiSys 2027 CFP: abstract registration November 27, 2026 and paper submission December 4, 2026, both 23:59 AoE. Early rejection January 26, 2027; rebuttal February 8–12; final decision March 6 (time not specified); camera-ready April 14. Notification time shown uses end-of-day AoE." },
   mswim: { deadline: "2027-06-12T23:59:00-12:00", notification: "2027-08-01T23:59:00-12:00" },
   cnsm: { deadline: "2027-05-31T23:59:00-12:00", notification: "2027-07-15T23:59:00-12:00" },
   dcoss: { deadline: "2027-01-20T23:59:00-12:00", notification: "2027-03-20T23:59:00-12:00" },
@@ -616,7 +616,7 @@ export default function Home() {
           </div>
 
           <div className="axis-row"><span>Now</span><span>+60d</span><span>+120d</span><span>+180d</span><span>+240d</span></div>
-          <footer><span>{view === "deadlines" ? `Source registry · ${filtered.length} shown · ${conferences.length} tracked deadlines · ${distinctConferenceCount} conferences` : view === "watchlist" ? `Personal watchlist · ${filtered.length} shown · ${watchlistIds.length} saved` : `Decision tracker · ${filtered.length} shown · ${decisionIds.length} pending`}</span><span>Updated 17 September 2026</span></footer>
+          <footer><span>{view === "deadlines" ? `Source registry · ${filtered.length} shown · ${conferences.length} tracked deadlines · ${distinctConferenceCount} conferences` : view === "watchlist" ? `Personal watchlist · ${filtered.length} shown · ${watchlistIds.length} saved` : `Decision tracker · ${filtered.length} shown · ${decisionIds.length} pending`}</span><span>Updated 6 November 2026</span></footer>
         </section>
       </div>
     </main>
